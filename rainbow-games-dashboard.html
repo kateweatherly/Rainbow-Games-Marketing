@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rainbow Games — Marketing Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;color:#1a1a18;font-size:14px;min-height:100vh}
+:root{
+  --bg:#f5f4f0;--bg2:#fff;--bg3:#eceae4;
+  --text:#1a1a18;--text2:#6b6b66;--text3:#9b9b96;
+  --border:rgba(0,0,0,.12);--border2:rgba(0,0,0,.22);
+  --purple:#7c3aed;--pink:#e91e63;--blue:#1976d2;--teal:#00838f;
+  --orange:#f57c00;--mauve:#7b1fa2;--green:#2d8a4e;--red:#c0392b;
+}
+.shell{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--bg2);border-bottom:0.5px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px}
+.logo-flag{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#FF6B9D 0%,#9B59B6 50%,#3498DB 100%);display:inline-block;flex-shrink:0}
+.logo-sub{font-weight:400;font-size:12px;color:var(--text2);margin-left:2px}
+.nav{display:flex;gap:2px}
+.nav-btn{background:none;border:none;padding:6px 13px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;transition:all .12s}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.active{background:var(--bg3);color:var(--text);font-weight:500}
+.body{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+.sidebar{width:196px;flex-shrink:0;border-right:0.5px solid var(--border);background:var(--bg2);padding:14px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin:10px 0 3px 4px}
+.sb-section:first-child{margin-top:0}
+.toggle-row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;cursor:pointer;user-select:none;transition:background .12s}
+.toggle-row:hover{background:var(--bg3)}
+.toggle-row input{display:none}
+.t-swatch{width:11px;height:11px;border-radius:3px;flex-shrink:0;opacity:.3;transition:opacity .15s}
+.toggle-row input:checked~.t-swatch{opacity:1}
+.t-label{font-size:12px;color:var(--text2);transition:color .15s}
+.toggle-row input:checked~.t-label{color:var(--text)}
+.dot-row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;cursor:pointer;user-select:none;transition:background .12s}
+.dot-row:hover{background:var(--bg3)}
+.dot-row input{display:none}
+.t-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;opacity:.3;transition:opacity .15s}
+.dot-row input:checked~.t-dot{opacity:1}
+.d-label{font-size:12px;color:var(--text2)}
+.dot-row input:checked~.t-dot+.d-label{color:var(--text)}
+.sb-divider{height:0.5px;background:var(--border);margin:8px 4px}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 4px 0;padding:7px;border-radius:7px;border:0.5px dashed var(--border2);background:none;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;transition:all .12s;width:calc(100% - 8px)}
+.add-btn:hover{background:var(--bg3);color:var(--text);border-style:solid}
+
+/* Main content */
+.content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.page{display:none}.page.active{display:flex;flex-direction:column;gap:12px}
+
+/* Metric cards */
+.metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.mc{background:var(--bg2);border:0.5px solid var(--border);border-radius:9px;padding:11px 13px}
+.mc-label{font-size:11px;color:var(--text2);margin-bottom:4px}
+.mc-val{font-size:20px;font-weight:600;line-height:1;letter-spacing:-.02em}
+.mc-delta{font-size:11px;margin-top:3px}
+.up{color:var(--green)}.down{color:var(--red)}
+
+/* Cards */
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:11px;padding:16px}
+.card-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px}
+.card-title{font-size:13px;font-weight:600}
+.card-sub{font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.4}
+.range-btns{display:flex;gap:3px;flex-shrink:0}
+.rb{border:0.5px solid var(--border);background:none;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .12s}
+.rb.active,.rb:hover{background:var(--bg3);color:var(--text);font-weight:500;border-color:var(--border2)}
+
+/* Chart wrappers */
+.cw{position:relative;width:100%}
+.cw-main{height:280px}
+.cw-sm{height:168px}
+
+/* Legend */
+.leg-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.leg-vl{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid}
+
+/* Secondary grid */
+.sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Campaign list in sidebar of impact */
+.camp-list{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto}
+.camp-row{display:flex;align-items:flex-start;gap:8px;padding:8px 9px;border-radius:7px;background:var(--bg3)}
+.cdot{width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.cname{font-size:12px;font-weight:500;line-height:1.3}
+.cmeta{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* Tooltip */
+.tt{position:absolute;background:var(--bg2);border:0.5px solid var(--border2);border-radius:9px;padding:10px 12px;font-size:12px;pointer-events:none;z-index:50;min-width:190px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.tt.on{display:block}
+.tt-title{font-weight:600;margin-bottom:6px;font-size:12px;padding-bottom:6px;border-bottom:0.5px solid var(--border)}
+.tt-row{display:flex;justify-content:space-between;gap:14px;margin-top:4px;font-size:11px}
+.tt-l{color:var(--text2)}.tt-v{font-weight:500}
+.tt-camp{margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);font-size:11px}
+
+/* Modal */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200}
+.overlay.on{display:flex}
+.modal{background:var(--bg2);border-radius:14px;padding:24px;width:500px;max-width:92vw;max-height:86vh;overflow-y:auto}
+.modal-title{font-weight:600;font-size:15px;margin-bottom:18px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:0.5px solid var(--border)}
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;color:var(--text2);font-weight:500;margin-bottom:4px}
+.fi{width:100%;padding:8px 10px;border:0.5px solid var(--border2);border-radius:7px;font-size:13px;font-family:inherit;background:var(--bg2);color:var(--text);outline:none}
+.fi:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,.1)}
+select.fi{cursor:pointer}
+textarea.fi{resize:vertical;min-height:60px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* Buttons */
+.btn{border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .12s}
+.btn:hover{background:var(--bg3)}
+.btn-primary{background:var(--purple);color:#fff;border-color:var(--purple)}
+.btn-primary:hover{background:#6d28d9;border-color:#6d28d9}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-danger{border-color:#e74c3c;color:#e74c3c}
+.btn-danger:hover{background:#fff0f0}
+
+/* Sync page */
+.sync-row{display:flex;align-items:center;gap:12px;padding:13px;border:0.5px solid var(--border);border-radius:9px;margin-bottom:9px;background:var(--bg2)}
+.si{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sinfo{flex:1}
+.sname{font-weight:500;font-size:13px}
+.sdesc{font-size:11px;color:var(--text2);margin-top:1px}
+.badge{font-size:11px;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.badge-pending{background:#fff3e0;color:#e65100}
+.badge-connected{background:#e8f5e9;color:#1b5e20}
+.badge-manual{background:#e8eaf6;color:#283593}
+.upload-area{border:1.5px dashed var(--border2);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .15s;width:100%;margin-top:8px}
+.upload-area:hover{border-color:var(--purple);background:rgba(124,58,237,.03)}
+.upload-area input{display:none}
+
+/* Impact */
+.imp-card{border:0.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.imp-hd{padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--bg2);transition:background .12s}
+.imp-hd:hover{background:var(--bg3)}
+.imp-body{padding:12px 14px;border-top:0.5px solid var(--border);background:var(--bg2);display:none}
+.imp-body.open{display:block}
+.imp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.imp-m{text-align:center;padding:9px;border-radius:7px;background:var(--bg3)}
+.imp-ml{font-size:11px;color:var(--text2);margin-bottom:3px}
+.imp-mv{font-size:14px;font-weight:600}
+.imp-md{font-size:11px;margin-top:2px}
+
+/* Pill tags */
+.pill{display:inline-flex;align-items:center;font-size:11px;padding:2px 7px;border-radius:4px;margin-right:3px;margin-top:3px}
+.pill-instagram{background:#fce4ec;color:#880e4f}
+.pill-facebook{background:#e3f2fd;color:#0d47a1}
+.pill-tiktok{background:#f3e5f5;color:#4a148c}
+.pill-google{background:#e8f5e9;color:#1b5e20}
+.pill-email{background:#e0f7fa;color:#006064}
+.pill-other{background:#f5f5f5;color:#424242}
+.pill-sporty{background:#fff3e0;color:#e65100}
+
+/* Settings */
+.setup-step{border-left:2px solid var(--purple);padding:10px 14px;margin-bottom:10px;border-radius:0 7px 7px 0;background:var(--bg3)}
+.setup-step-title{font-weight:500;font-size:13px;margin-bottom:3px}
+.setup-step-body{font-size:12px;color:var(--text2);line-height:1.6}
+code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:11px;color:var(--purple)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:300;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-flag"></span>
+    Rainbow Games
+    <span class="logo-sub">— Marketing Intelligence</span>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="nav('overview',this)">Overview</button>
+    <button class="nav-btn" onclick="nav('impact',this)">Impact</button>
+    <button class="nav-btn" onclick="nav('campaigns',this)">Campaigns</button>
+    <button class="nav-btn" onclick="nav('sync',this)">Weekly sync</button>
+    <button class="nav-btn" onclick="nav('settings',this)">Settings</button>
+  </div>
+</div>
+
+<div class="body">
+
+<!-- Sidebar (shared) -->
+<div class="sidebar">
+  <div class="sb-section">Metrics</div>
+  <label class="toggle-row"><input type="checkbox" checked data-metric="registrations" onchange="redraw()"><span class="t-swatch" style="background:#7c3aed"></span><span class="t-label">Registrations</span></label>
+  <label class="toggle-row"><input type="checkbox" checked data-metric="reach" onchange="redraw()"><span class="t-swatch" style="background:#e91e63"></span><span class="t-label">Social reach</span></label>
+  <label class="toggle-row"><input type="checkbox" data-metric="interactions" onchange="redraw()"><span class="t-swatch" style="background:#d4537e"></span><span class="t-label">Interactions</span></label>
+  <label class="toggle-row"><input type="checkbox" checked data-metric="sessions" onchange="redraw()"><span class="t-swatch" style="background:#1976d2"></span><span class="t-label">Website sessions</span></label>
+  <label class="toggle-row"><input type="checkbox" data-metric="igFollowers" onchange="redraw()"><span class="t-swatch" style="background:#f57c00"></span><span class="t-label">IG followers</span></label>
+  <label class="toggle-row"><input type="checkbox" data-metric="tiktokViews" onchange="redraw()"><span class="t-swatch" style="background:#7b1fa2"></span><span class="t-label">TikTok views</span></label>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Campaign markers</div>
+  <label class="dot-row"><input type="checkbox" checked data-ctype="social_post" onchange="redraw()"><span class="t-dot" style="background:#9c27b0"></span><span class="d-label">Social post</span></label>
+  <label class="dot-row"><input type="checkbox" checked data-ctype="event" onchange="redraw()"><span class="t-dot" style="background:#e91e63"></span><span class="d-label">Event</span></label>
+  <label class="dot-row"><input type="checkbox" checked data-ctype="ad_campaign" onchange="redraw()"><span class="t-dot" style="background:#1976d2"></span><span class="d-label">Ad campaign</span></label>
+  <label class="dot-row"><input type="checkbox" checked data-ctype="email" onchange="redraw()"><span class="t-dot" style="background:#00838f"></span><span class="d-label">Email</span></label>
+  <label class="dot-row"><input type="checkbox" checked data-ctype="other" onchange="redraw()"><span class="t-dot" style="background:#616161"></span><span class="d-label">Other</span></label>
+
+  <div class="sb-divider"></div>
+  <button class="add-btn" onclick="openModal()">+ Log activity</button>
+</div>
+
+<!-- Main content area -->
+<div class="content">
+
+  <!-- OVERVIEW PAGE -->
+  <div class="page active" id="page-overview">
+    <div class="metrics-row" id="metrics-row"></div>
+
+    <!-- PRIMARY: Unified timeline -->
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <div class="card-title">All sources — unified timeline</div>
+          <div class="card-sub">Normalised 0–100 · dashed verticals = campaign activity · hover any point for details</div>
+        </div>
+        <div class="range-btns">
+          <button class="rb active" onclick="setRange(30,this)">30d</button>
+          <button class="rb" onclick="setRange(60,this)">60d</button>
+          <button class="rb" onclick="setRange(90,this)">90d</button>
+          <button class="rb" onclick="setRange(0,this)">All</button>
+        </div>
+      </div>
+      <div class="cw cw-main" id="main-wrap">
+        <canvas id="main-chart"></canvas>
+        <div class="tt" id="main-tt"></div>
+      </div>
+      <div class="leg-row" id="main-legend"></div>
+    </div>
+
+    <!-- SECONDARY: 2x2 grid -->
+    <div class="sec-grid">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:2px">Registrations</div>
+        <div class="card-sub">Weekly new sign-ups</div>
+        <div class="cw cw-sm"><canvas id="chart-reg"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:2px">Social reach & interactions</div>
+        <div class="card-sub">Instagram, Facebook & TikTok combined</div>
+        <div class="cw cw-sm"><canvas id="chart-social"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:2px">Website traffic vs ad spend</div>
+        <div class="card-sub">Sessions (left axis) · Spend NZD$ (right axis)</div>
+        <div class="cw cw-sm"><canvas id="chart-traffic"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:2px">Recent campaigns</div>
+        <div class="card-sub">Latest activity in selected period</div>
+        <div class="camp-list" id="camp-sidebar-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPACT PAGE -->
+  <div class="page" id="page-impact">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div>
+        <div style="font-size:16px;font-weight:600">Campaign impact analysis</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">7-day window before vs after each campaign · click to expand</div>
+      </div>
+    </div>
+    <div id="impact-list"></div>
+  </div>
+
+  <!-- CAMPAIGNS PAGE -->
+  <div class="page" id="page-campaigns">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:16px;font-weight:600">All campaigns & activities</div>
+      <button class="btn btn-primary btn-sm" onclick="openModal()">+ Log activity</button>
+    </div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap" id="camp-filter-row">
+      <button class="rb active" onclick="filterCamps('all',this)">All</button>
+      <button class="rb" onclick="filterCamps('social_post',this)">Social posts</button>
+      <button class="rb" onclick="filterCamps('event',this)">Events</button>
+      <button class="rb" onclick="filterCamps('ad_campaign',this)">Ad campaigns</button>
+      <button class="rb" onclick="filterCamps('email',this)">Email</button>
+      <button class="rb" onclick="filterCamps('other',this)">Other</button>
+    </div>
+    <div id="camp-page-list"></div>
+  </div>
+
+  <!-- SYNC PAGE -->
+  <div class="page" id="page-sync">
+    <div style="font-size:16px;font-weight:600;margin-bottom:4px">Weekly data sync</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Keep your dashboard current — takes about 5 minutes per week</div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Step 1 — Auto-pull (connect once, updates automatically)</div>
+      <div class="sync-row">
+        <div class="si" style="background:#fce4ec;font-size:18px">📷</div>
+        <div class="sinfo">
+          <div class="sname">Instagram & Facebook</div>
+          <div class="sdesc">Followers, reach, impressions, post engagement via Meta Business API</div>
+        </div>
+        <span class="badge badge-pending" id="meta-badge">Not connected</span>
+        <button class="btn btn-sm" onclick="connectMeta()">Connect</button>
+      </div>
+      <div class="sync-row">
+        <div class="si" style="background:#e8f5e9;font-size:18px">📊</div>
+        <div class="sinfo">
+          <div class="sname">Google Analytics 4</div>
+          <div class="sdesc">Website sessions, users, ad spend, conversions via GA4 API</div>
+        </div>
+        <span class="badge badge-pending" id="ga-badge">Not connected</span>
+        <button class="btn btn-sm" onclick="connectGA()">Connect</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Step 2 — Upload exports (~2 min each)</div>
+      <div class="sync-row" style="flex-direction:column;align-items:flex-start">
+        <div style="display:flex;align-items:center;gap:12px;width:100%">
+          <div class="si" style="background:#f3e5f5;font-size:18px">🎵</div>
+          <div class="sinfo">
+            <div class="sname">TikTok analytics</div>
+            <div class="sdesc">Creator Center → Analytics → Export CSV → upload below</div>
+          </div>
+          <span class="badge badge-manual" id="tiktok-badge">Manual</span>
+        </div>
+        <div class="upload-area" onclick="document.getElementById('tiktok-file').click()">
+          <input type="file" id="tiktok-file" accept=".csv" onchange="handleUpload(this,'tiktok-badge','TikTok')">
+          <div style="font-size:13px;color:var(--text2)">Click to upload TikTok CSV export</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">Creator Center → Analytics → Export data</div>
+        </div>
+      </div>
+      <div style="margin-top:10px"></div>
+      <div class="sync-row" style="flex-direction:column;align-items:flex-start">
+        <div style="display:flex;align-items:center;gap:12px;width:100%">
+          <div class="si" style="background:#fff3e0;font-size:18px">🏅</div>
+          <div class="sinfo">
+            <div class="sname">Sporty registrations</div>
+            <div class="sdesc">Admin → Reports → Registrations → Export CSV → upload below</div>
+          </div>
+          <span class="badge badge-manual" id="sporty-badge">Manual</span>
+        </div>
+        <div class="upload-area" onclick="document.getElementById('sporty-file').click()">
+          <input type="file" id="sporty-file" accept=".csv" onchange="handleUpload(this,'sporty-badge','Sporty')">
+          <div style="font-size:13px;color:var(--text2)">Click to upload Sporty registrations CSV</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">Admin panel → Reports → Registrations → Export</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:4px">Step 3 — Manual entry (fallback)</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Enter this week's numbers directly if exports aren't available</div>
+      <div class="fr3">
+        <div class="fg"><label class="fl">Week ending</label><input type="date" class="fi" id="m-week"></div>
+        <div class="fg"><label class="fl">New IG followers</label><input type="number" class="fi" id="m-ig" placeholder="0"></div>
+        <div class="fg"><label class="fl">New FB followers</label><input type="number" class="fi" id="m-fb" placeholder="0"></div>
+      </div>
+      <div class="fr3">
+        <div class="fg"><label class="fl">Post reach (total)</label><input type="number" class="fi" id="m-reach" placeholder="0"></div>
+        <div class="fg"><label class="fl">Interactions</label><input type="number" class="fi" id="m-inter" placeholder="0"></div>
+        <div class="fg"><label class="fl">New registrations</label><input type="number" class="fi" id="m-reg" placeholder="0"></div>
+      </div>
+      <div class="fr3">
+        <div class="fg"><label class="fl">Website sessions</label><input type="number" class="fi" id="m-sess" placeholder="0"></div>
+        <div class="fg"><label class="fl">Ad spend (NZD$)</label><input type="number" class="fi" id="m-spend" placeholder="0"></div>
+        <div class="fg"><label class="fl">TikTok views</label><input type="number" class="fi" id="m-tiktok" placeholder="0"></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveManual()">Save weekly data</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div class="page" id="page-settings">
+    <div style="font-size:16px;font-weight:600;margin-bottom:12px">Settings & setup guide</div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Organisation</div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Organisation name</label><input type="text" class="fi" id="org-name" value="Rainbow Games Tāmaki Makaurau"></div>
+        <div class="fg"><label class="fl">Currency</label>
+          <select class="fi" id="org-currency">
+            <option value="NZD" selected>NZD ($)</option>
+            <option value="AUD">AUD ($)</option>
+            <option value="USD">USD ($)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" onclick="saveSettings()">Save settings</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">API connection guide</div>
+      <div class="setup-step">
+        <div class="setup-step-title">1 — Meta Business API (Instagram + Facebook)</div>
+        <div class="setup-step-body">Go to <strong>developers.facebook.com</strong> → Create App → Add "Instagram Graph API" → Connect your Business account. Generate a long-lived Page Access Token. In your backend <code>.env</code> file, set <code>META_ACCESS_TOKEN=...</code> and <code>META_PAGE_ID=...</code>. The weekly sync script will call <code>/me/insights</code> automatically.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-step-title">2 — Google Analytics 4</div>
+        <div class="setup-step-body">Go to <strong>console.cloud.google.com</strong> → Create project → Enable "Google Analytics Data API" → Create a Service Account → Download the JSON key. Share your GA4 property with the service account email (Viewer role). Set <code>GA4_PROPERTY_ID=...</code> and <code>GOOGLE_APPLICATION_CREDENTIALS=path/to/key.json</code> in your <code>.env</code> file.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-step-title">3 — TikTok</div>
+        <div class="setup-step-body">TikTok does not provide a public analytics API for business pages. Export weekly from <strong>Creator Center → Analytics → Export data</strong> and upload via the Weekly Sync panel. This takes under 2 minutes.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-step-title">4 — Sporty</div>
+        <div class="setup-step-body">Sporty has no public API. Export registrations from <strong>Admin → Reports → Registrations → Export CSV</strong> and upload via the Weekly Sync panel. Alternatively, ask your Sporty account manager if webhook exports are available on your plan.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Data management</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="exportData()">Export backup (JSON)</button>
+        <button class="btn btn-danger" onclick="resetData()">Reset to sample data</button>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-top:10px">Data is stored in this browser session. In the live version it will be stored in your Supabase database. Export regularly as a backup.</div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+</div><!-- /body -->
+</div><!-- /shell -->
+
+<!-- Campaign modal -->
+<div class="overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Log marketing activity</div>
+    <input type="hidden" id="edit-id">
+    <div class="fr2">
+      <div class="fg"><label class="fl">Activity name</label><input type="text" class="fi" id="c-name" placeholder="e.g. Pride March appearance"></div>
+      <div class="fg"><label class="fl">Type</label>
+        <select class="fi" id="c-type">
+          <option value="social_post">Social post</option>
+          <option value="event">Event / appearance</option>
+          <option value="ad_campaign">Paid ad campaign</option>
+          <option value="email">Email campaign</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="c-date"></div>
+      <div class="fg"><label class="fl">Channels (hold Ctrl/Cmd for multiple)</label>
+        <select class="fi" id="c-channels" multiple style="height:72px">
+          <option value="instagram">Instagram</option>
+          <option value="facebook">Facebook</option>
+          <option value="tiktok">TikTok</option>
+          <option value="google">Google Ads</option>
+          <option value="email">Email</option>
+          <option value="sporty">Sporty</option>
+          <option value="other">Other / In-person</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="c-notes" placeholder="What did you do? Budget, key details, reach estimate..."></textarea></div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">Estimated reach</label><input type="number" class="fi" id="c-reach" placeholder="0"></div>
+      <div class="fg"><label class="fl">Budget spent ($)</label><input type="number" class="fi" id="c-budget" placeholder="0"></div>
+      <div class="fg"><label class="fl">Direct registrations</label><input type="number" class="fi" id="c-regs" placeholder="0"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="delete-btn" style="display:none" onclick="deleteCampaign()">Delete</button>
+      <button class="btn btn-primary" onclick="saveCampaign()">Save activity</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Data ────────────────────────────────────────────────────────────────────
+const SK = 'rg_v2';
+let db = { campaigns:[], weekly:[], settings:{ org:'Rainbow Games Tāmaki Makaurau', currency:'NZD' } };
+
+const TYPE_COLORS = { social_post:'#9c27b0', event:'#e91e63', ad_campaign:'#1976d2', email:'#00838f', other:'#616161' };
+const TYPE_LABELS = { social_post:'Social post', event:'Event', ad_campaign:'Ad campaign', email:'Email', other:'Other' };
+const M_COLORS = { registrations:'#7c3aed', reach:'#e91e63', interactions:'#d4537e', sessions:'#1976d2', igFollowers:'#f57c00', tiktokViews:'#7b1fa2' };
+const M_LABELS = { registrations:'Registrations', reach:'Reach', interactions:'Interactions', sessions:'Sessions', igFollowers:'IG followers', tiktokViews:'TikTok views' };
+
+function load() {
+  try { const r = sessionStorage.getItem(SK); if(r) db = JSON.parse(r); } catch(e){}
+  if (!db.weekly?.length) seed();
+}
+function save() { try { sessionStorage.setItem(SK, JSON.stringify(db)); } catch(e){} }
+
+function seed() {
+  const base = new Date('2024-03-22');
+  db.weekly = Array.from({length:13}, (_,i) => {
+    const d = new Date(base); d.setDate(d.getDate() - (12-i)*7);
+    const t = 1 + i*0.09, r = () => Math.random();
+    return {
+      id:'w'+i, weekEnding: d.toISOString().split('T')[0],
+      igFollowers: Math.round(380+i*42+r()*18),
+      fbFollowers: Math.round(210+i*18+r()*10),
+      reach: Math.round(1200*t+r()*380),
+      interactions: Math.round(280*t+r()*75),
+      registrations: Math.round(8*t+r()*5),
+      sessions: Math.round(450*t+r()*110),
+      adSpend: Math.round(55+r()*45),
+      tiktokViews: Math.round(900*t+r()*280),
+    };
+  });
+  db.campaigns = [
+    {id:'c1',name:'Pride March appearance',type:'event',date:'2024-01-20',channels:['instagram','other'],notes:'Tabled at Tāmaki Pride March, live stories, flyer distribution.',reach:2400,budget:0,registrations:14},
+    {id:'c2',name:'Registrations open — Instagram',type:'social_post',date:'2024-01-28',channels:['instagram'],notes:'Announcement post: registrations now open for 2024 games.',reach:1850,budget:0,registrations:22},
+    {id:'c3',name:'Facebook + Google promoted post',type:'ad_campaign',date:'2024-02-10',channels:['facebook','google'],notes:'$120 Facebook, $80 Google Display. 2-week run.',reach:5400,budget:200,registrations:38},
+    {id:'c4',name:'TikTok highlights reel series',type:'social_post',date:'2024-02-24',channels:['tiktok','instagram'],notes:'3-part reel series, past games highlights.',reach:8200,budget:0,registrations:19},
+    {id:'c5',name:'Community newsletter — March',type:'email',date:'2024-03-08',channels:['email'],notes:'640 subscribers. CTA: register now. Open rate 34%.',reach:640,budget:0,registrations:31},
+  ];
+  save();
+}
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let rangeWeeks = 30;
+let campFilter = 'all';
+let charts = {};
+
+function activeMetrics() { return [...document.querySelectorAll('[data-metric]')].filter(i=>i.checked).map(i=>i.dataset.metric); }
+function activeCtypes() { return [...document.querySelectorAll('[data-ctype]')].filter(i=>i.checked).map(i=>i.dataset.ctype); }
+
+function filteredWeekly() {
+  let d = [...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+  if (rangeWeeks > 0) {
+    const cut = new Date('2024-03-22'); cut.setDate(cut.getDate()-rangeWeeks);
+    d = d.filter(w => new Date(w.weekEnding) >= cut);
+  }
+  return d;
+}
+function filteredCamps(data) {
+  if (!data.length) return [];
+  const s = new Date(data[0].weekEnding), e = new Date(data[data.length-1].weekEnding);
+  return db.campaigns.filter(c => { const d=new Date(c.date); return d>=s && d<=e; });
+}
+function fmt(n) { return n>=1000 ? (n/1000).toFixed(1)+'k' : String(Math.round(n)); }
+function norm(arr) {
+  const mn=Math.min(...arr), mx=Math.max(...arr);
+  return mx===mn ? arr.map(()=>50) : arr.map(v=>Math.round((v-mn)/(mx-mn)*100));
+}
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+function nav(page, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('active');
+  if (page==='overview') redraw();
+  if (page==='impact') renderImpact();
+  if (page==='campaigns') renderCampPage();
+}
+
+function setRange(d, btn) {
+  rangeWeeks=d;
+  document.querySelectorAll('.rb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  redraw();
+}
+
+// ─── Redraw ───────────────────────────────────────────────────────────────────
+function redraw() {
+  renderMetrics();
+  renderMainChart();
+  renderSec();
+  renderCampSidebar();
+}
+
+// ─── Metrics row ─────────────────────────────────────────────────────────────
+function renderMetrics() {
+  const data = filteredWeekly();
+  if (!data.length) return;
+  const last = data[data.length-1], prev = data.length>1?data[data.length-2]:null;
+  const totalReg = data.reduce((s,w)=>s+(w.registrations||0),0);
+  const totalSpend = data.reduce((s,w)=>s+(w.adSpend||0),0);
+  const cpr = totalReg>0 ? Math.round(totalSpend/totalReg) : null;
+  function delt(f) {
+    if (!prev) return '';
+    const d=last[f]-prev[f], pct=prev[f]>0?Math.round(d/prev[f]*100):0;
+    return `<div class="mc-delta ${d>=0?'up':'down'}">${d>=0?'+':''}${pct}% vs prev wk</div>`;
+  }
+  document.getElementById('metrics-row').innerHTML = [
+    {l:'Registrations (period)',v:totalReg.toLocaleString(),d:''},
+    {l:'Reach (latest week)',v:fmt(last.reach||0),d:delt('reach')},
+    {l:'IG followers',v:(last.igFollowers||0).toLocaleString(),d:delt('igFollowers')},
+    {l:'Website sessions',v:fmt(last.sessions||0),d:delt('sessions')},
+    {l:'Cost per registration',v:cpr?'$'+cpr:'—',d:''},
+  ].map(c=>`<div class="mc"><div class="mc-label">${c.l}</div><div class="mc-val">${c.v}</div>${c.d}</div>`).join('');
+}
+
+// ─── Campaign annotation plugin ───────────────────────────────────────────────
+function annotPlugin(data, camps) {
+  const ctypes = activeCtypes();
+  return {
+    id:'annot',
+    afterDraw(chart) {
+      const {ctx,chartArea,scales} = chart;
+      if (!chartArea) return;
+      camps.filter(c=>ctypes.includes(c.type)).forEach(c => {
+        const cd = new Date(c.date);
+        let ci=0, md=Infinity;
+        data.forEach((w,i)=>{ const df=Math.abs(new Date(w.weekEnding)-cd); if(df<md){md=df;ci=i;} });
+        const xp = scales.x.getPixelForValue(ci);
+        if (xp<chartArea.left||xp>chartArea.right) return;
+        const col = TYPE_COLORS[c.type]||'#888';
+        ctx.save();
+        ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.setLineDash([3,3]); ctx.globalAlpha=0.65;
+        ctx.beginPath(); ctx.moveTo(xp,chartArea.top); ctx.lineTo(xp,chartArea.bottom); ctx.stroke();
+        ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
+        ctx.beginPath(); ctx.arc(xp,chartArea.top+6,5,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      });
+    }
+  };
+}
+
+// ─── Main chart ───────────────────────────────────────────────────────────────
+function renderMainChart() {
+  const data = filteredWeekly();
+  const camps = filteredCamps(data);
+  const metrics = activeMetrics();
+  const labels = data.map(w=>{ const d=new Date(w.weekEnding); return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'}); });
+  const datasets = metrics.map(m=>({
+    label:M_LABELS[m], data:norm(data.map(w=>w[m]||0)),
+    borderColor:M_COLORS[m], backgroundColor:M_COLORS[m]+'12',
+    borderWidth:1.5, tension:0.35, fill:false,
+    pointRadius:3, pointHoverRadius:5, pointBackgroundColor:M_COLORS[m],
+  }));
+
+  if (charts.main) charts.main.destroy();
+  const ctx = document.getElementById('main-chart').getContext('2d');
+  charts.main = new Chart(ctx, {
+    type:'line', data:{labels,datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          enabled:false,
+          external(context) {
+            const tt = document.getElementById('main-tt');
+            if (context.tooltip.opacity===0){tt.classList.remove('on');return;}
+            const idx = context.tooltip.dataPoints?.[0]?.dataIndex;
+            if (idx===undefined) return;
+            const week = data[idx];
+            let html = `<div class="tt-title">${labels[idx]}</div>`;
+            metrics.forEach(m=>{
+              html+=`<div class="tt-row"><span class="tt-l" style="color:${M_COLORS[m]}">${M_LABELS[m]}</span><span class="tt-v">${fmt(week[m]||0)}</span></div>`;
+            });
+            const wc = camps.filter(c=>{
+              const cd=new Date(c.date),wd=new Date(week.weekEnding);
+              const pv=new Date(wd); pv.setDate(wd.getDate()-6);
+              return cd>=pv && cd<=wd;
+            });
+            if (wc.length) {
+              html+=`<div class="tt-camp">`;
+              wc.forEach(c=>{ html+=`<div style="color:${TYPE_COLORS[c.type]}">${TYPE_LABELS[c.type]}: ${c.name}</div>`; });
+              html+='</div>';
+            }
+            tt.innerHTML=html;
+            const wrap = document.getElementById('main-wrap');
+            let tx = context.tooltip.caretX+14;
+            if (tx+210>wrap.offsetWidth) tx=context.tooltip.caretX-218;
+            tt.style.left=tx+'px';
+            tt.style.top=Math.max(0,context.tooltip.caretY-30)+'px';
+            tt.classList.add('on');
+          }
+        }
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}},
+        y:{min:0,max:100,ticks:{font:{size:11},callback:v=>v+''},grid:{color:'rgba(0,0,0,0.04)'}}
+      }
+    },
+    plugins:[annotPlugin(data,camps)]
+  });
+
+  const leg = document.getElementById('main-legend');
+  let lh = metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${M_COLORS[m]}"></span>${M_LABELS[m]}</span>`).join('');
+  activeCtypes().forEach(ct=>{
+    const visible = camps.filter(c=>c.type===ct);
+    if (visible.length) lh+=`<span class="leg"><span class="leg-vl" style="border-color:${TYPE_COLORS[ct]};background:${TYPE_COLORS[ct]}20"></span>${TYPE_LABELS[ct]}</span>`;
+  });
+  leg.innerHTML=lh;
+}
+
+// ─── Secondary charts ─────────────────────────────────────────────────────────
+function renderSec() {
+  const data = filteredWeekly();
+  const labels = data.map(w=>{ const d=new Date(w.weekEnding); return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'}); });
+  const tickOpts = {font:{size:10},maxTicksLimit:6};
+  const gridFaint = {color:'rgba(0,0,0,0.04)'};
+
+  if (charts.reg) charts.reg.destroy();
+  charts.reg = new Chart(document.getElementById('chart-reg').getContext('2d'),{
+    type:'bar', data:{labels,datasets:[{data:data.map(w=>w.registrations||0),backgroundColor:'rgba(124,58,237,.18)',borderColor:'#7c3aed',borderWidth:1.5,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:tickOpts},y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint}}}
+  });
+
+  if (charts.social) charts.social.destroy();
+  charts.social = new Chart(document.getElementById('chart-social').getContext('2d'),{
+    type:'line', data:{labels,datasets:[
+      {label:'Reach',data:data.map(w=>w.reach||0),borderColor:'#e91e63',backgroundColor:'rgba(233,30,99,.07)',tension:0.3,fill:true,borderWidth:1.5,pointRadius:2},
+      {label:'Interactions',data:data.map(w=>w.interactions||0),borderColor:'#d4537e',backgroundColor:'transparent',tension:0.3,borderWidth:1.5,pointRadius:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:tickOpts},y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint}}}
+  });
+
+  if (charts.traffic) charts.traffic.destroy();
+  charts.traffic = new Chart(document.getElementById('chart-traffic').getContext('2d'),{
+    type:'line', data:{labels,datasets:[
+      {label:'Sessions',data:data.map(w=>w.sessions||0),borderColor:'#1976d2',backgroundColor:'rgba(25,118,210,.07)',tension:0.3,fill:true,borderWidth:1.5,pointRadius:2,yAxisID:'y'},
+      {label:'Ad spend',data:data.map(w=>w.adSpend||0),borderColor:'#f57c00',backgroundColor:'transparent',tension:0.3,borderWidth:1.5,borderDash:[4,3],pointRadius:2,yAxisID:'y1'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{grid:{display:false},ticks:tickOpts},
+      y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint},
+      y1:{beginAtZero:true,position:'right',ticks:{...tickOpts,callback:v=>'$'+v},grid:{display:false}}
+    }}
+  });
+}
+
+function renderCampSidebar() {
+  const data = filteredWeekly();
+  const camps = filteredCamps(data).filter(c=>activeCtypes().includes(c.type)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('camp-sidebar-list').innerHTML = camps.length
+    ? camps.slice(0,6).map(c=>`<div class="camp-row"><div class="cdot" style="background:${TYPE_COLORS[c.type]}"></div><div><div class="cname">${c.name}</div><div class="cmeta">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short'})} · ${TYPE_LABELS[c.type]}${c.registrations?' · '+c.registrations+' reg':''}</div></div></div>`).join('')
+    : '<div style="font-size:12px;color:var(--text2);padding:6px">No campaigns in range</div>';
+}
+
+// ─── Impact page ──────────────────────────────────────────────────────────────
+function renderImpact() {
+  const sorted = [...db.campaigns].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('impact-list').innerHTML = sorted.length
+    ? sorted.map(c=>{
+        const cd=new Date(c.date);
+        const before = db.weekly.filter(w=>{ const d=new Date(w.weekEnding); return d<cd && d>=new Date(cd-14*86400000); });
+        const after  = db.weekly.filter(w=>{ const d=new Date(w.weekEnding); return d>cd && d<=new Date(cd.getTime()+14*86400000); });
+        function avg(arr,f){ return arr.length?Math.round(arr.reduce((s,w)=>s+(w[f]||0),0)/arr.length):null; }
+        function impM(label,field){
+          const b=avg(before,field),a=avg(after,field);
+          if(b===null&&a===null) return '';
+          const diff=b!==null&&a!==null?a-b:null;
+          const pct=b&&b>0&&diff!==null?Math.round(diff/b*100):null;
+          const col=diff>0?'#2d8a4e':diff<0?'#c0392b':'#888';
+          return `<div class="imp-m"><div class="imp-ml">${label}</div><div class="imp-mv">${a!==null?fmt(a):'—'}</div>${pct!==null?`<div class="imp-md" style="color:${col}">${diff>0?'+':''}${pct}% vs before</div>`:'<div class="imp-md" style="color:var(--text2)">no prior data</div>'}</div>`;
+        }
+        return `<div class="imp-card">
+          <div class="imp-hd" onclick="toggleImp('i${c.id}')">
+            <div class="cdot" style="background:${TYPE_COLORS[c.type]||'#888'};width:9px;height:9px;border-radius:50%;flex-shrink:0"></div>
+            <div style="flex:1">
+              <span style="font-weight:500;font-size:13px">${c.name}</span>
+              <span style="font-size:11px;color:var(--text2);margin-left:8px">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'})}</span>
+              ${(c.channels||[]).map(ch=>`<span class="pill pill-${ch}">${ch}</span>`).join('')}
+            </div>
+            <span style="font-size:11px;color:var(--text2);flex-shrink:0">▾ expand</span>
+          </div>
+          <div class="imp-body" id="i${c.id}">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Average weekly metrics: 2 weeks after vs 2 weeks before</div>
+            <div class="imp-grid">
+              ${impM('Registrations','registrations')}${impM('Reach','reach')}${impM('Interactions','interactions')}
+              ${impM('Sessions','sessions')}${impM('IG followers','igFollowers')}${impM('TikTok views','tiktokViews')}
+            </div>
+            ${c.registrations?`<div style="margin-top:8px;font-size:12px;color:var(--text2)">Directly attributed: <strong>${c.registrations} registrations</strong>${c.budget?' · Budget: <strong>$'+c.budget+'</strong> · Cost per reg: <strong>$'+Math.round(c.budget/c.registrations)+'</strong>':''}</div>`:''}
+            ${c.notes?`<div style="margin-top:4px;font-size:12px;color:var(--text2)">${c.notes}</div>`:''}
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No campaigns logged yet.</div>';
+}
+function toggleImp(id){ document.getElementById(id).classList.toggle('open'); }
+
+// ─── Campaigns page ───────────────────────────────────────────────────────────
+function filterCamps(type,btn){
+  campFilter=type;
+  document.querySelectorAll('#camp-filter-row .rb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCampPage();
+}
+function renderCampPage(){
+  let camps=[...db.campaigns].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(campFilter!=='all') camps=camps.filter(c=>c.type===campFilter);
+  document.getElementById('camp-page-list').innerHTML = camps.length
+    ? camps.map(c=>`<div style="border:0.5px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:8px;background:var(--bg2);display:flex;align-items:flex-start;gap:10px">
+        <div class="cdot" style="background:${TYPE_COLORS[c.type]||'#888'};width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-weight:500;font-size:13px">${c.name}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'})} · ${TYPE_LABELS[c.type]}</div>
+          <div style="margin-top:4px">${(c.channels||[]).map(ch=>`<span class="pill pill-${ch}">${ch}</span>`).join('')}</div>
+          ${c.notes?`<div style="font-size:12px;color:var(--text2);margin-top:5px">${c.notes}</div>`:''}
+          <div style="display:flex;gap:14px;margin-top:6px">
+            ${c.reach?`<span style="font-size:12px;color:var(--text2)">Reach: <strong>${c.reach.toLocaleString()}</strong></span>`:''}
+            ${c.budget?`<span style="font-size:12px;color:var(--text2)">Spend: <strong>$${c.budget}</strong></span>`:''}
+            ${c.registrations?`<span style="font-size:12px;color:var(--text2)">Registrations: <strong>${c.registrations}</strong></span>`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm" onclick="editCampaign('${c.id}')">Edit</button>
+        </div>
+      </div>`).join('')
+    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No activities logged yet.</div>';
+}
+
+// ─── Modal ────────────────────────────────────────────────────────────────────
+function openModal(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('modal-title').textContent='Log marketing activity';
+  document.getElementById('c-name').value='';
+  document.getElementById('c-type').value='social_post';
+  document.getElementById('c-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('c-notes').value='';
+  document.getElementById('c-reach').value='';
+  document.getElementById('c-budget').value='';
+  document.getElementById('c-regs').value='';
+  document.getElementById('delete-btn').style.display='none';
+  [...document.getElementById('c-channels').options].forEach(o=>o.selected=false);
+  document.getElementById('modal-overlay').classList.add('on');
+}
+function editCampaign(id){
+  const c=db.campaigns.find(x=>x.id===id); if(!c) return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('modal-title').textContent='Edit activity';
+  document.getElementById('c-name').value=c.name;
+  document.getElementById('c-type').value=c.type;
+  document.getElementById('c-date').value=c.date;
+  document.getElementById('c-notes').value=c.notes||'';
+  document.getElementById('c-reach').value=c.reach||'';
+  document.getElementById('c-budget').value=c.budget||'';
+  document.getElementById('c-regs').value=c.registrations||'';
+  document.getElementById('delete-btn').style.display='';
+  [...document.getElementById('c-channels').options].forEach(o=>o.selected=(c.channels||[]).includes(o.value));
+  document.getElementById('modal-overlay').classList.add('on');
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('on'); }
+function saveCampaign(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name){toast('Please enter an activity name');return;}
+  const channels=[...document.getElementById('c-channels').selectedOptions].map(o=>o.value);
+  const eid=document.getElementById('edit-id').value;
+  const obj={
+    id:eid||'c'+Date.now(), name,
+    type:document.getElementById('c-type').value,
+    date:document.getElementById('c-date').value,
+    channels, notes:document.getElementById('c-notes').value.trim(),
+    reach:parseInt(document.getElementById('c-reach').value)||0,
+    budget:parseInt(document.getElementById('c-budget').value)||0,
+    registrations:parseInt(document.getElementById('c-regs').value)||0,
+  };
+  if(eid){ const i=db.campaigns.findIndex(x=>x.id===eid); if(i>=0) db.campaigns[i]=obj; }
+  else db.campaigns.push(obj);
+  save(); closeModal(); redraw(); renderCampPage(); renderImpact();
+  toast('Activity saved');
+}
+function deleteCampaign(){
+  const eid=document.getElementById('edit-id').value;
+  if(!eid||!confirm('Delete this activity?')) return;
+  db.campaigns=db.campaigns.filter(c=>c.id!==eid);
+  save(); closeModal(); redraw(); renderCampPage(); renderImpact();
+  toast('Deleted');
+}
+
+// ─── Sync page ────────────────────────────────────────────────────────────────
+function connectMeta(){ toast('In production: opens Meta OAuth flow. See Settings → API guide.'); }
+function connectGA(){ toast('In production: opens Google OAuth flow. See Settings → API guide.'); }
+function handleUpload(input,badgeId,name){
+  if(!input.files.length) return;
+  document.getElementById(badgeId).textContent='Uploaded ✓';
+  document.getElementById(badgeId).className='badge badge-connected';
+  toast(name+' file received — parser would run here in production');
+}
+function saveManual(){
+  const week=document.getElementById('m-week').value;
+  if(!week){toast('Select a week date first');return;}
+  const entry={
+    id:'m'+Date.now(), weekEnding:week,
+    igFollowers:parseInt(document.getElementById('m-ig').value)||0,
+    fbFollowers:parseInt(document.getElementById('m-fb').value)||0,
+    reach:parseInt(document.getElementById('m-reach').value)||0,
+    interactions:parseInt(document.getElementById('m-inter').value)||0,
+    registrations:parseInt(document.getElementById('m-reg').value)||0,
+    sessions:parseInt(document.getElementById('m-sess').value)||0,
+    adSpend:parseInt(document.getElementById('m-spend').value)||0,
+    tiktokViews:parseInt(document.getElementById('m-tiktok').value)||0,
+  };
+  const ei=db.weekly.findIndex(w=>w.weekEnding===week);
+  if(ei>=0) db.weekly[ei]=entry; else db.weekly.push(entry);
+  db.weekly.sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+  save(); toast('Weekly data saved ✓'); redraw();
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+function saveSettings(){
+  db.settings.org=document.getElementById('org-name').value;
+  db.settings.currency=document.getElementById('org-currency').value;
+  save(); toast('Settings saved');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='rainbow-games-marketing-backup.json'; a.click();
+  toast('Backup downloaded');
+}
+function resetData(){
+  if(!confirm('Reset all data to sample data?')) return;
+  sessionStorage.removeItem(SK);
+  db={campaigns:[],weekly:[],settings:{org:'Rainbow Games Tāmaki Makaurau',currency:'NZD'}};
+  seed(); redraw(); toast('Reset to sample data');
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ─── Click outside modal ──────────────────────────────────────────────────────
+document.getElementById('modal-overlay').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById('m-week').value=new Date().toISOString().split('T')[0];
+load();
+redraw();
+</script>
+</body>
+</html>
