@@ -25,8 +25,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-btn:hover{background:var(--bg3);color:var(--text)}
 .nav-btn.active{background:var(--bg3);color:var(--text);font-weight:500}
 .body{display:flex;flex:1;overflow:hidden}
-
-/* Sidebar */
 .sidebar{width:196px;flex-shrink:0;border-right:0.5px solid var(--border);background:var(--bg2);padding:14px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
 .sb-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin:10px 0 3px 4px}
 .sb-section:first-child{margin-top:0}
@@ -47,20 +45,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sb-divider{height:0.5px;background:var(--border);margin:8px 4px}
 .add-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 4px 0;padding:7px;border-radius:7px;border:0.5px dashed var(--border2);background:none;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;transition:all .12s;width:calc(100% - 8px)}
 .add-btn:hover{background:var(--bg3);color:var(--text);border-style:solid}
-
-/* Main content */
 .content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .page{display:none}.page.active{display:flex;flex-direction:column;gap:12px}
-
-/* Metric cards */
 .metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .mc{background:var(--bg2);border:0.5px solid var(--border);border-radius:9px;padding:11px 13px}
 .mc-label{font-size:11px;color:var(--text2);margin-bottom:4px}
 .mc-val{font-size:20px;font-weight:600;line-height:1;letter-spacing:-.02em}
 .mc-delta{font-size:11px;margin-top:3px}
 .up{color:var(--green)}.down{color:var(--red)}
-
-/* Cards */
 .card{background:var(--bg2);border:0.5px solid var(--border);border-radius:11px;padding:16px}
 .card-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px}
 .card-title{font-size:13px;font-weight:600}
@@ -68,37 +60,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .range-btns{display:flex;gap:3px;flex-shrink:0}
 .rb{border:0.5px solid var(--border);background:none;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .12s}
 .rb.active,.rb:hover{background:var(--bg3);color:var(--text);font-weight:500;border-color:var(--border2)}
-
-/* Chart wrappers */
 .cw{position:relative;width:100%}
 .cw-main{height:280px}
 .cw-sm{height:168px}
-
-/* Legend */
 .leg-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
 .leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .leg-vl{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid}
-
-/* Secondary grid */
 .sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
-/* Campaign list in sidebar of impact */
 .camp-list{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto}
 .camp-row{display:flex;align-items:flex-start;gap:8px;padding:8px 9px;border-radius:7px;background:var(--bg3)}
 .cdot{width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0}
 .cname{font-size:12px;font-weight:500;line-height:1.3}
 .cmeta{font-size:11px;color:var(--text2);margin-top:1px}
-
-/* Tooltip */
 .tt{position:absolute;background:var(--bg2);border:0.5px solid var(--border2);border-radius:9px;padding:10px 12px;font-size:12px;pointer-events:none;z-index:50;min-width:190px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.08)}
 .tt.on{display:block}
 .tt-title{font-weight:600;margin-bottom:6px;font-size:12px;padding-bottom:6px;border-bottom:0.5px solid var(--border)}
 .tt-row{display:flex;justify-content:space-between;gap:14px;margin-top:4px;font-size:11px}
 .tt-l{color:var(--text2)}.tt-v{font-weight:500}
 .tt-camp{margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);font-size:11px}
-
-/* Modal */
 .overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200}
 .overlay.on{display:flex}
 .modal{background:var(--bg2);border-radius:14px;padding:24px;width:500px;max-width:92vw;max-height:86vh;overflow-y:auto}
@@ -112,8 +92,6 @@ select.fi{cursor:pointer}
 textarea.fi{resize:vertical;min-height:60px}
 .fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-
-/* Buttons */
 .btn{border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .12s}
 .btn:hover{background:var(--bg3)}
 .btn-primary{background:var(--purple);color:#fff;border-color:var(--purple)}
@@ -121,8 +99,6 @@ textarea.fi{resize:vertical;min-height:60px}
 .btn-sm{padding:4px 10px;font-size:12px}
 .btn-danger{border-color:#e74c3c;color:#e74c3c}
 .btn-danger:hover{background:#fff0f0}
-
-/* Sync page */
 .sync-row{display:flex;align-items:center;gap:12px;padding:13px;border:0.5px solid var(--border);border-radius:9px;margin-bottom:9px;background:var(--bg2)}
 .si{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .sinfo{flex:1}
@@ -135,8 +111,6 @@ textarea.fi{resize:vertical;min-height:60px}
 .upload-area{border:1.5px dashed var(--border2);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .15s;width:100%;margin-top:8px}
 .upload-area:hover{border-color:var(--purple);background:rgba(124,58,237,.03)}
 .upload-area input{display:none}
-
-/* Impact */
 .imp-card{border:0.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
 .imp-hd{padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--bg2);transition:background .12s}
 .imp-hd:hover{background:var(--bg3)}
@@ -147,8 +121,6 @@ textarea.fi{resize:vertical;min-height:60px}
 .imp-ml{font-size:11px;color:var(--text2);margin-bottom:3px}
 .imp-mv{font-size:14px;font-weight:600}
 .imp-md{font-size:11px;margin-top:2px}
-
-/* Pill tags */
 .pill{display:inline-flex;align-items:center;font-size:11px;padding:2px 7px;border-radius:4px;margin-right:3px;margin-top:3px}
 .pill-instagram{background:#fce4ec;color:#880e4f}
 .pill-facebook{background:#e3f2fd;color:#0d47a1}
@@ -157,27 +129,33 @@ textarea.fi{resize:vertical;min-height:60px}
 .pill-email{background:#e0f7fa;color:#006064}
 .pill-other{background:#f5f5f5;color:#424242}
 .pill-sporty{background:#fff3e0;color:#e65100}
-
-/* Settings */
 .setup-step{border-left:2px solid var(--purple);padding:10px 14px;margin-bottom:10px;border-radius:0 7px 7px 0;background:var(--bg3)}
 .setup-step-title{font-weight:500;font-size:13px;margin-bottom:3px}
 .setup-step-body{font-size:12px;color:var(--text2);line-height:1.6}
 code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:11px;color:var(--purple)}
-
-/* Toast */
 .toast{position:fixed;bottom:24px;right:24px;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:300;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
-
-/* Scrollbar */
+/* Loading overlay */
+.loading-screen{position:fixed;inset:0;background:#f5f4f0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;gap:16px}
+.loading-screen.hidden{display:none}
+.loading-spinner{width:32px;height:32px;border:3px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--text2)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
 </style>
 </head>
 <body>
-<div class="shell">
 
-<!-- Top bar -->
+<!-- Loading screen shown while fetching from Supabase -->
+<div class="loading-screen" id="loading-screen">
+  <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#FF6B9D,#9B59B6,#3498DB);margin-bottom:4px"></div>
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loading-text">Loading your dashboard...</div>
+</div>
+
+<div class="shell">
 <div class="topbar">
   <div class="logo">
     <span class="logo-flag"></span>
@@ -194,8 +172,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
 </div>
 
 <div class="body">
-
-<!-- Sidebar (shared) -->
 <div class="sidebar">
   <div class="sb-section">Metrics</div>
   <label class="toggle-row"><input type="checkbox" checked data-metric="registrations" onchange="redraw()"><span class="t-swatch" style="background:#7c3aed"></span><span class="t-label">Registrations</span></label>
@@ -204,7 +180,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
   <label class="toggle-row"><input type="checkbox" checked data-metric="sessions" onchange="redraw()"><span class="t-swatch" style="background:#1976d2"></span><span class="t-label">Website sessions</span></label>
   <label class="toggle-row"><input type="checkbox" data-metric="igFollowers" onchange="redraw()"><span class="t-swatch" style="background:#f57c00"></span><span class="t-label">IG followers</span></label>
   <label class="toggle-row"><input type="checkbox" data-metric="tiktokViews" onchange="redraw()"><span class="t-swatch" style="background:#7b1fa2"></span><span class="t-label">TikTok views</span></label>
-
   <div class="sb-divider"></div>
   <div class="sb-section">Campaign markers</div>
   <label class="dot-row"><input type="checkbox" checked data-ctype="social_post" onchange="redraw()"><span class="t-dot" style="background:#9c27b0"></span><span class="d-label">Social post</span></label>
@@ -212,19 +187,15 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
   <label class="dot-row"><input type="checkbox" checked data-ctype="ad_campaign" onchange="redraw()"><span class="t-dot" style="background:#1976d2"></span><span class="d-label">Ad campaign</span></label>
   <label class="dot-row"><input type="checkbox" checked data-ctype="email" onchange="redraw()"><span class="t-dot" style="background:#00838f"></span><span class="d-label">Email</span></label>
   <label class="dot-row"><input type="checkbox" checked data-ctype="other" onchange="redraw()"><span class="t-dot" style="background:#616161"></span><span class="d-label">Other</span></label>
-
   <div class="sb-divider"></div>
   <button class="add-btn" onclick="openModal()">+ Log activity</button>
 </div>
 
-<!-- Main content area -->
 <div class="content">
 
   <!-- OVERVIEW PAGE -->
   <div class="page active" id="page-overview">
     <div class="metrics-row" id="metrics-row"></div>
-
-    <!-- PRIMARY: Unified timeline -->
     <div class="card">
       <div class="card-hd">
         <div>
@@ -244,8 +215,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
       </div>
       <div class="leg-row" id="main-legend"></div>
     </div>
-
-    <!-- SECONDARY: 2x2 grid -->
     <div class="sec-grid">
       <div class="card">
         <div class="card-title" style="margin-bottom:2px">Registrations</div>
@@ -302,7 +271,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
   <div class="page" id="page-sync">
     <div style="font-size:16px;font-weight:600;margin-bottom:4px">Weekly data sync</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Keep your dashboard current — takes about 5 minutes per week</div>
-
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">Step 1 — Auto-pull (connect once, updates automatically)</div>
       <div class="sync-row">
@@ -324,7 +292,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
         <button class="btn btn-sm" onclick="connectGA()">Connect</button>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">Step 2 — Upload exports (~2 min each)</div>
       <div class="sync-row" style="flex-direction:column;align-items:flex-start">
@@ -359,10 +326,9 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
         </div>
       </div>
     </div>
-
     <div class="card">
-      <div class="card-title" style="margin-bottom:4px">Step 3 — Manual entry (fallback)</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Enter this week's numbers directly if exports aren't available</div>
+      <div class="card-title" style="margin-bottom:4px">Step 3 — Manual entry</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Enter this week's numbers directly</div>
       <div class="fr3">
         <div class="fg"><label class="fl">Week ending</label><input type="date" class="fi" id="m-week"></div>
         <div class="fg"><label class="fl">New IG followers</label><input type="number" class="fi" id="m-ig" placeholder="0"></div>
@@ -385,7 +351,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
   <!-- SETTINGS PAGE -->
   <div class="page" id="page-settings">
     <div style="font-size:16px;font-weight:600;margin-bottom:12px">Settings & setup guide</div>
-
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">Organisation</div>
       <div class="fr2">
@@ -400,40 +365,45 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
       </div>
       <button class="btn" onclick="saveSettings()">Save settings</button>
     </div>
-
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Database status</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+        <span id="db-status-dot" style="width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0"></span>
+        <span id="db-status-text" style="color:var(--text2)">Checking connection...</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-top:10px">Connected to Supabase · data is saved permanently and shared across all devices</div>
+    </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">API connection guide</div>
       <div class="setup-step">
         <div class="setup-step-title">1 — Meta Business API (Instagram + Facebook)</div>
-        <div class="setup-step-body">Go to <strong>developers.facebook.com</strong> → Create App → Add "Instagram Graph API" → Connect your Business account. Generate a long-lived Page Access Token. In your backend <code>.env</code> file, set <code>META_ACCESS_TOKEN=...</code> and <code>META_PAGE_ID=...</code>. The weekly sync script will call <code>/me/insights</code> automatically.</div>
+        <div class="setup-step-body">Go to <strong>developers.facebook.com</strong> → Create App → Add "Instagram Graph API" → Connect your Business account. Generate a long-lived Page Access Token. In your backend <code>.env</code> file, set <code>META_ACCESS_TOKEN=...</code> and <code>META_PAGE_ID=...</code>.</div>
       </div>
       <div class="setup-step">
         <div class="setup-step-title">2 — Google Analytics 4</div>
-        <div class="setup-step-body">Go to <strong>console.cloud.google.com</strong> → Create project → Enable "Google Analytics Data API" → Create a Service Account → Download the JSON key. Share your GA4 property with the service account email (Viewer role). Set <code>GA4_PROPERTY_ID=...</code> and <code>GOOGLE_APPLICATION_CREDENTIALS=path/to/key.json</code> in your <code>.env</code> file.</div>
+        <div class="setup-step-body">Go to <strong>console.cloud.google.com</strong> → Create project → Enable "Google Analytics Data API" → Create a Service Account → Download the JSON key. Share your GA4 property with the service account email (Viewer role).</div>
       </div>
       <div class="setup-step">
         <div class="setup-step-title">3 — TikTok</div>
-        <div class="setup-step-body">TikTok does not provide a public analytics API for business pages. Export weekly from <strong>Creator Center → Analytics → Export data</strong> and upload via the Weekly Sync panel. This takes under 2 minutes.</div>
+        <div class="setup-step-body">Export weekly from <strong>Creator Center → Analytics → Export data</strong> and upload via the Weekly Sync panel.</div>
       </div>
       <div class="setup-step">
         <div class="setup-step-title">4 — Sporty</div>
-        <div class="setup-step-body">Sporty has no public API. Export registrations from <strong>Admin → Reports → Registrations → Export CSV</strong> and upload via the Weekly Sync panel. Alternatively, ask your Sporty account manager if webhook exports are available on your plan.</div>
+        <div class="setup-step-body">Export registrations from <strong>Admin → Reports → Registrations → Export CSV</strong> and upload via the Weekly Sync panel.</div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">Data management</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="exportData()">Export backup (JSON)</button>
-        <button class="btn btn-danger" onclick="resetData()">Reset to sample data</button>
       </div>
-      <div style="font-size:12px;color:var(--text2);margin-top:10px">Data is stored in this browser session. In the live version it will be stored in your Supabase database. Export regularly as a backup.</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:10px">Data is stored in Supabase and shared across all devices and team members.</div>
     </div>
   </div>
 
-</div><!-- /content -->
-</div><!-- /body -->
-</div><!-- /shell -->
+</div>
+</div>
+</div>
 
 <!-- Campaign modal -->
 <div class="overlay" id="modal-overlay">
@@ -483,50 +453,143 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Data ────────────────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://eitzydlwzakuemnddxss.supabase.co/';
+// ─── Supabase config ──────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://eitzydlwzakuemnddxss.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpdHp5ZGx3emFrdWVtbmRkeHNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMzAyNDcsImV4cCI6MjA4OTkwNjI0N30.26TL4uVZGl7EBz1jIUTZlsiI-3HZkWRcWI1Rwy-DJVU';
-let db = { campaigns:[], weekly:[], settings:{ org:'Rainbow Games Tāmaki Makaurau', currency:'NZD' } };
+
+// ─── Supabase API helpers ─────────────────────────────────────────────────────
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+async function sbSelect(table) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=created_at.asc`, { headers: SB_HEADERS });
+  if (!res.ok) throw new Error(`Failed to load ${table}: ${res.status}`);
+  return res.json();
+}
+
+async function sbUpsert(table, row) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
+    body: JSON.stringify(row)
+  });
+  if (!res.ok) { const e = await res.text(); throw new Error(`Save failed: ${e}`); }
+  return res.json();
+}
+
+async function sbDelete(table, id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: SB_HEADERS
+  });
+  if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+}
+
+// ─── In-memory store ──────────────────────────────────────────────────────────
+let db = { campaigns: [], weekly: [], settings: { org: 'Rainbow Games Tāmaki Makaurau', currency: 'NZD' } };
 
 const TYPE_COLORS = { social_post:'#9c27b0', event:'#e91e63', ad_campaign:'#1976d2', email:'#00838f', other:'#616161' };
 const TYPE_LABELS = { social_post:'Social post', event:'Event', ad_campaign:'Ad campaign', email:'Email', other:'Other' };
 const M_COLORS = { registrations:'#7c3aed', reach:'#e91e63', interactions:'#d4537e', sessions:'#1976d2', igFollowers:'#f57c00', tiktokViews:'#7b1fa2' };
 const M_LABELS = { registrations:'Registrations', reach:'Reach', interactions:'Interactions', sessions:'Sessions', igFollowers:'IG followers', tiktokViews:'TikTok views' };
 
-function load() {
-  try { const r = sessionStorage.getItem(SK); if(r) db = JSON.parse(r); } catch(e){}
-  if (!db.weekly?.length) seed();
-}
-function save() { try { sessionStorage.setItem(SK, JSON.stringify(db)); } catch(e){} }
+// ─── Load from Supabase ───────────────────────────────────────────────────────
+async function load() {
+  setLoading('Connecting to database...');
+  try {
+    const [weeklyRaw, campaignsRaw] = await Promise.all([
+      sbSelect('weekly_data'),
+      sbSelect('campaigns')
+    ]);
 
-function seed() {
-  const base = new Date('2024-03-22');
-  db.weekly = Array.from({length:13}, (_,i) => {
-    const d = new Date(base); d.setDate(d.getDate() - (12-i)*7);
-    const t = 1 + i*0.09, r = () => Math.random();
-    return {
-      id:'w'+i, weekEnding: d.toISOString().split('T')[0],
-      igFollowers: Math.round(380+i*42+r()*18),
-      fbFollowers: Math.round(210+i*18+r()*10),
-      reach: Math.round(1200*t+r()*380),
-      interactions: Math.round(280*t+r()*75),
-      registrations: Math.round(8*t+r()*5),
-      sessions: Math.round(450*t+r()*110),
-      adSpend: Math.round(55+r()*45),
-      tiktokViews: Math.round(900*t+r()*280),
-    };
-  });
-  db.campaigns = [
-    {id:'c1',name:'Pride March appearance',type:'event',date:'2024-01-20',channels:['instagram','other'],notes:'Tabled at Tāmaki Pride March, live stories, flyer distribution.',reach:2400,budget:0,registrations:14},
-    {id:'c2',name:'Registrations open — Instagram',type:'social_post',date:'2024-01-28',channels:['instagram'],notes:'Announcement post: registrations now open for 2024 games.',reach:1850,budget:0,registrations:22},
-    {id:'c3',name:'Facebook + Google promoted post',type:'ad_campaign',date:'2024-02-10',channels:['facebook','google'],notes:'$120 Facebook, $80 Google Display. 2-week run.',reach:5400,budget:200,registrations:38},
-    {id:'c4',name:'TikTok highlights reel series',type:'social_post',date:'2024-02-24',channels:['tiktok','instagram'],notes:'3-part reel series, past games highlights.',reach:8200,budget:0,registrations:19},
-    {id:'c5',name:'Community newsletter — March',type:'email',date:'2024-03-08',channels:['email'],notes:'640 subscribers. CTA: register now. Open rate 34%.',reach:640,budget:0,registrations:31},
-  ];
-  save();
+    // Map Supabase snake_case columns back to camelCase for the app
+    db.weekly = weeklyRaw.map(w => ({
+      id: w.id,
+      weekEnding: w.week_ending,
+      igFollowers: w.ig_followers || 0,
+      fbFollowers: w.fb_followers || 0,
+      reach: w.reach || 0,
+      interactions: w.interactions || 0,
+      registrations: w.registrations || 0,
+      sessions: w.sessions || 0,
+      adSpend: parseFloat(w.ad_spend) || 0,
+      tiktokViews: w.tiktok_views || 0,
+    }));
+
+    db.campaigns = campaignsRaw.map(c => ({
+      id: c.id,
+      name: c.name,
+      type: c.type,
+      date: c.date,
+      channels: c.channels || [],
+      notes: c.notes || '',
+      reach: c.reach || 0,
+      budget: parseFloat(c.budget) || 0,
+      registrations: c.registrations || 0,
+    }));
+
+    setDbStatus(true);
+    hideLoading();
+  } catch (err) {
+    console.error('Supabase load error:', err);
+    setDbStatus(false);
+    hideLoading();
+    toast('Could not connect to database — check console for details');
+  }
 }
 
-// ─── State ───────────────────────────────────────────────────────────────────
+function setLoading(msg) {
+  document.getElementById('loading-text').textContent = msg;
+  document.getElementById('loading-screen').classList.remove('hidden');
+}
+function hideLoading() {
+  document.getElementById('loading-screen').classList.add('hidden');
+}
+function setDbStatus(ok) {
+  document.getElementById('db-status-dot').style.background = ok ? '#2d8a4e' : '#c0392b';
+  document.getElementById('db-status-text').textContent = ok
+    ? 'Connected — data is saving to Supabase'
+    : 'Connection failed — check your Supabase URL and API key in Settings';
+}
+
+// ─── Save weekly entry to Supabase ────────────────────────────────────────────
+async function saveWeeklyToSupabase(entry) {
+  const row = {
+    id: entry.id,
+    week_ending: entry.weekEnding,
+    ig_followers: entry.igFollowers,
+    fb_followers: entry.fbFollowers,
+    reach: entry.reach,
+    interactions: entry.interactions,
+    registrations: entry.registrations,
+    sessions: entry.sessions,
+    ad_spend: entry.adSpend,
+    tiktok_views: entry.tiktokViews,
+  };
+  await sbUpsert('weekly_data', row);
+}
+
+// ─── Save campaign to Supabase ────────────────────────────────────────────────
+async function saveCampaignToSupabase(obj) {
+  const row = {
+    id: obj.id,
+    name: obj.name,
+    type: obj.type,
+    date: obj.date,
+    channels: obj.channels,
+    notes: obj.notes,
+    reach: obj.reach,
+    budget: obj.budget,
+    registrations: obj.registrations,
+  };
+  await sbUpsert('campaigns', row);
+}
+
+// ─── State ────────────────────────────────────────────────────────────────────
 let rangeWeeks = 30;
 let campFilter = 'all';
 let charts = {};
@@ -537,7 +600,7 @@ function activeCtypes() { return [...document.querySelectorAll('[data-ctype]')].
 function filteredWeekly() {
   let d = [...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
   if (rangeWeeks > 0) {
-    const cut = new Date('2024-03-22'); cut.setDate(cut.getDate()-rangeWeeks);
+    const cut = new Date(); cut.setDate(cut.getDate()-rangeWeeks);
     d = d.filter(w => new Date(w.weekEnding) >= cut);
   }
   return d;
@@ -553,7 +616,7 @@ function norm(arr) {
   return mx===mn ? arr.map(()=>50) : arr.map(v=>Math.round((v-mn)/(mx-mn)*100));
 }
 
-// ─── Navigation ──────────────────────────────────────────────────────────────
+// ─── Navigation ───────────────────────────────────────────────────────────────
 function nav(page, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -563,7 +626,6 @@ function nav(page, btn) {
   if (page==='impact') renderImpact();
   if (page==='campaigns') renderCampPage();
 }
-
 function setRange(d, btn) {
   rangeWeeks=d;
   document.querySelectorAll('.rb').forEach(b=>b.classList.remove('active'));
@@ -579,10 +641,13 @@ function redraw() {
   renderCampSidebar();
 }
 
-// ─── Metrics row ─────────────────────────────────────────────────────────────
+// ─── Metrics row ──────────────────────────────────────────────────────────────
 function renderMetrics() {
   const data = filteredWeekly();
-  if (!data.length) return;
+  if (!data.length) {
+    document.getElementById('metrics-row').innerHTML = '<div style="font-size:13px;color:var(--text2);padding:16px 0;grid-column:1/-1">No data yet — use Weekly Sync to add your first week\'s numbers.</div>';
+    return;
+  }
   const last = data[data.length-1], prev = data.length>1?data[data.length-2]:null;
   const totalReg = data.reduce((s,w)=>s+(w.registrations||0),0);
   const totalSpend = data.reduce((s,w)=>s+(w.adSpend||0),0);
@@ -630,6 +695,7 @@ function annotPlugin(data, camps) {
 // ─── Main chart ───────────────────────────────────────────────────────────────
 function renderMainChart() {
   const data = filteredWeekly();
+  if (!data.length) return;
   const camps = filteredCamps(data);
   const metrics = activeMetrics();
   const labels = data.map(w=>{ const d=new Date(w.weekEnding); return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'}); });
@@ -639,7 +705,6 @@ function renderMainChart() {
     borderWidth:1.5, tension:0.35, fill:false,
     pointRadius:3, pointHoverRadius:5, pointBackgroundColor:M_COLORS[m],
   }));
-
   if (charts.main) charts.main.destroy();
   const ctx = document.getElementById('main-chart').getContext('2d');
   charts.main = new Chart(ctx, {
@@ -688,7 +753,6 @@ function renderMainChart() {
     },
     plugins:[annotPlugin(data,camps)]
   });
-
   const leg = document.getElementById('main-legend');
   let lh = metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${M_COLORS[m]}"></span>${M_LABELS[m]}</span>`).join('');
   activeCtypes().forEach(ct=>{
@@ -701,16 +765,15 @@ function renderMainChart() {
 // ─── Secondary charts ─────────────────────────────────────────────────────────
 function renderSec() {
   const data = filteredWeekly();
+  if (!data.length) return;
   const labels = data.map(w=>{ const d=new Date(w.weekEnding); return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'}); });
   const tickOpts = {font:{size:10},maxTicksLimit:6};
   const gridFaint = {color:'rgba(0,0,0,0.04)'};
-
   if (charts.reg) charts.reg.destroy();
   charts.reg = new Chart(document.getElementById('chart-reg').getContext('2d'),{
     type:'bar', data:{labels,datasets:[{data:data.map(w=>w.registrations||0),backgroundColor:'rgba(124,58,237,.18)',borderColor:'#7c3aed',borderWidth:1.5,borderRadius:3}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:tickOpts},y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint}}}
   });
-
   if (charts.social) charts.social.destroy();
   charts.social = new Chart(document.getElementById('chart-social').getContext('2d'),{
     type:'line', data:{labels,datasets:[
@@ -719,7 +782,6 @@ function renderSec() {
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:tickOpts},y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint}}}
   });
-
   if (charts.traffic) charts.traffic.destroy();
   charts.traffic = new Chart(document.getElementById('chart-traffic').getContext('2d'),{
     type:'line', data:{labels,datasets:[
@@ -780,7 +842,7 @@ function renderImpact() {
           </div>
         </div>`;
       }).join('')
-    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No campaigns logged yet.</div>';
+    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No campaigns logged yet — add one under the Campaigns tab.</div>';
 }
 function toggleImp(id){ document.getElementById(id).classList.toggle('open'); }
 
@@ -812,7 +874,7 @@ function renderCampPage(){
           <button class="btn btn-sm" onclick="editCampaign('${c.id}')">Edit</button>
         </div>
       </div>`).join('')
-    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No activities logged yet.</div>';
+    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No activities logged yet — click "+ Log activity" to add your first one.</div>';
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
@@ -846,13 +908,14 @@ function editCampaign(id){
   document.getElementById('modal-overlay').classList.add('on');
 }
 function closeModal(){ document.getElementById('modal-overlay').classList.remove('on'); }
-function saveCampaign(){
+
+async function saveCampaign(){
   const name=document.getElementById('c-name').value.trim();
   if(!name){toast('Please enter an activity name');return;}
   const channels=[...document.getElementById('c-channels').selectedOptions].map(o=>o.value);
   const eid=document.getElementById('edit-id').value;
   const obj={
-    id:eid||'c'+Date.now(), name,
+    id: eid||'c'+Date.now(), name,
     type:document.getElementById('c-type').value,
     date:document.getElementById('c-date').value,
     channels, notes:document.getElementById('c-notes').value.trim(),
@@ -860,33 +923,48 @@ function saveCampaign(){
     budget:parseInt(document.getElementById('c-budget').value)||0,
     registrations:parseInt(document.getElementById('c-regs').value)||0,
   };
-  if(eid){ const i=db.campaigns.findIndex(x=>x.id===eid); if(i>=0) db.campaigns[i]=obj; }
-  else db.campaigns.push(obj);
-  save(); closeModal(); redraw(); renderCampPage(); renderImpact();
-  toast('Activity saved');
+  try {
+    await saveCampaignToSupabase(obj);
+    if(eid){ const i=db.campaigns.findIndex(x=>x.id===eid); if(i>=0) db.campaigns[i]=obj; }
+    else db.campaigns.push(obj);
+    closeModal(); redraw(); renderCampPage(); renderImpact();
+    toast('Activity saved to database ✓');
+  } catch(e) {
+    toast('Save failed — check your connection');
+    console.error(e);
+  }
 }
-function deleteCampaign(){
+
+async function deleteCampaign(){
   const eid=document.getElementById('edit-id').value;
   if(!eid||!confirm('Delete this activity?')) return;
-  db.campaigns=db.campaigns.filter(c=>c.id!==eid);
-  save(); closeModal(); redraw(); renderCampPage(); renderImpact();
-  toast('Deleted');
+  try {
+    await sbDelete('campaigns', eid);
+    db.campaigns=db.campaigns.filter(c=>c.id!==eid);
+    closeModal(); redraw(); renderCampPage(); renderImpact();
+    toast('Deleted');
+  } catch(e) {
+    toast('Delete failed — check your connection');
+    console.error(e);
+  }
 }
 
 // ─── Sync page ────────────────────────────────────────────────────────────────
-function connectMeta(){ toast('In production: opens Meta OAuth flow. See Settings → API guide.'); }
-function connectGA(){ toast('In production: opens Google OAuth flow. See Settings → API guide.'); }
+function connectMeta(){ toast('See Settings → API connection guide for Meta setup steps.'); }
+function connectGA(){ toast('See Settings → API connection guide for Google Analytics setup steps.'); }
 function handleUpload(input,badgeId,name){
   if(!input.files.length) return;
   document.getElementById(badgeId).textContent='Uploaded ✓';
   document.getElementById(badgeId).className='badge badge-connected';
-  toast(name+' file received — parser would run here in production');
+  toast(name+' file received — CSV parsing coming in a future update');
 }
-function saveManual(){
+
+async function saveManual(){
   const week=document.getElementById('m-week').value;
   if(!week){toast('Select a week date first');return;}
   const entry={
-    id:'m'+Date.now(), weekEnding:week,
+    id: 'w-'+week,
+    weekEnding:week,
     igFollowers:parseInt(document.getElementById('m-ig').value)||0,
     fbFollowers:parseInt(document.getElementById('m-fb').value)||0,
     reach:parseInt(document.getElementById('m-reach').value)||0,
@@ -896,17 +974,24 @@ function saveManual(){
     adSpend:parseInt(document.getElementById('m-spend').value)||0,
     tiktokViews:parseInt(document.getElementById('m-tiktok').value)||0,
   };
-  const ei=db.weekly.findIndex(w=>w.weekEnding===week);
-  if(ei>=0) db.weekly[ei]=entry; else db.weekly.push(entry);
-  db.weekly.sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
-  save(); toast('Weekly data saved ✓'); redraw();
+  try {
+    await saveWeeklyToSupabase(entry);
+    const ei=db.weekly.findIndex(w=>w.weekEnding===week);
+    if(ei>=0) db.weekly[ei]=entry; else db.weekly.push(entry);
+    db.weekly.sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+    toast('Weekly data saved to database ✓');
+    redraw();
+  } catch(e) {
+    toast('Save failed — check your connection');
+    console.error(e);
+  }
 }
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
 function saveSettings(){
   db.settings.org=document.getElementById('org-name').value;
   db.settings.currency=document.getElementById('org-currency').value;
-  save(); toast('Settings saved');
+  toast('Settings saved');
 }
 function exportData(){
   const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
@@ -914,18 +999,12 @@ function exportData(){
   a.download='rainbow-games-marketing-backup.json'; a.click();
   toast('Backup downloaded');
 }
-function resetData(){
-  if(!confirm('Reset all data to sample data?')) return;
-  sessionStorage.removeItem(SK);
-  db={campaigns:[],weekly:[],settings:{org:'Rainbow Games Tāmaki Makaurau',currency:'NZD'}};
-  seed(); redraw(); toast('Reset to sample data');
-}
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2600);
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
 
 // ─── Click outside modal ──────────────────────────────────────────────────────
@@ -935,8 +1014,7 @@ document.getElementById('modal-overlay').addEventListener('click',function(e){
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 document.getElementById('m-week').value=new Date().toISOString().split('T')[0];
-load();
-redraw();
+load().then(() => redraw());
 </script>
 </body>
 </html>
