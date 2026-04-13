@@ -21,9 +21,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .logo-flag{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#FF6B9D 0%,#9B59B6 50%,#3498DB 100%);display:inline-block;flex-shrink:0}
 .logo-sub{font-weight:400;font-size:12px;color:var(--text2);margin-left:2px}
 .nav{display:flex;gap:2px}
-.nav-btn{background:none;border:none;padding:6px 13px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;transition:all .12s}
+.nav-btn{background:none;border:none;padding:6px 13px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;transition:all .12s;position:relative}
 .nav-btn:hover{background:var(--bg3);color:var(--text)}
 .nav-btn.active{background:var(--bg3);color:var(--text);font-weight:500}
+.nav-btn .pulse{position:absolute;top:4px;right:4px;width:7px;height:7px;background:#e91e63;border-radius:50%;display:none}
+.nav-btn .pulse.show{display:block}
 .body{display:flex;flex:1;overflow:hidden}
 .sidebar{width:196px;flex-shrink:0;border-right:0.5px solid var(--border);background:var(--bg2);padding:14px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
 .sb-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin:10px 0 3px 4px}
@@ -45,6 +47,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sb-divider{height:0.5px;background:var(--border);margin:8px 4px}
 .add-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 4px 0;padding:7px;border-radius:7px;border:0.5px dashed var(--border2);background:none;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;transition:all .12s;width:calc(100% - 8px)}
 .add-btn:hover{background:var(--bg3);color:var(--text);border-style:solid}
+.sync-shortcut{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 4px 0;padding:8px;border-radius:7px;border:none;background:var(--purple);cursor:pointer;font-size:12px;color:#fff;font-family:inherit;font-weight:500;transition:all .12s;width:calc(100% - 8px)}
+.sync-shortcut:hover{background:#6d28d9}
 .content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .page{display:none}.page.active{display:flex;flex-direction:column;gap:12px}
 .metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
@@ -86,6 +90,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:0.5px solid var(--border)}
 .fg{margin-bottom:12px}
 .fl{display:block;font-size:11px;color:var(--text2);font-weight:500;margin-bottom:4px}
+.fhint{display:block;font-size:10px;color:var(--text3);margin-top:3px;line-height:1.4}
 .fi{width:100%;padding:8px 10px;border:0.5px solid var(--border2);border-radius:7px;font-size:13px;font-family:inherit;background:var(--bg2);color:var(--text);outline:none}
 .fi:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,.1)}
 select.fi{cursor:pointer}
@@ -99,18 +104,6 @@ textarea.fi{resize:vertical;min-height:60px}
 .btn-sm{padding:4px 10px;font-size:12px}
 .btn-danger{border-color:#e74c3c;color:#e74c3c}
 .btn-danger:hover{background:#fff0f0}
-.sync-row{display:flex;align-items:center;gap:12px;padding:13px;border:0.5px solid var(--border);border-radius:9px;margin-bottom:9px;background:var(--bg2)}
-.si{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.sinfo{flex:1}
-.sname{font-weight:500;font-size:13px}
-.sdesc{font-size:11px;color:var(--text2);margin-top:1px}
-.badge{font-size:11px;padding:3px 8px;border-radius:4px;white-space:nowrap}
-.badge-pending{background:#fff3e0;color:#e65100}
-.badge-connected{background:#e8f5e9;color:#1b5e20}
-.badge-manual{background:#e8eaf6;color:#283593}
-.upload-area{border:1.5px dashed var(--border2);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .15s;width:100%;margin-top:8px}
-.upload-area:hover{border-color:var(--purple);background:rgba(124,58,237,.03)}
-.upload-area input{display:none}
 .imp-card{border:0.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
 .imp-hd{padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--bg2);transition:background .12s}
 .imp-hd:hover{background:var(--bg3)}
@@ -129,18 +122,47 @@ textarea.fi{resize:vertical;min-height:60px}
 .pill-email{background:#e0f7fa;color:#006064}
 .pill-other{background:#f5f5f5;color:#424242}
 .pill-sporty{background:#fff3e0;color:#e65100}
-.setup-step{border-left:2px solid var(--purple);padding:10px 14px;margin-bottom:10px;border-radius:0 7px 7px 0;background:var(--bg3)}
-.setup-step-title{font-weight:500;font-size:13px;margin-bottom:3px}
-.setup-step-body{font-size:12px;color:var(--text2);line-height:1.6}
-code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:11px;color:var(--purple)}
 .toast{position:fixed;bottom:24px;right:24px;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:300;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
-/* Loading overlay */
 .loading-screen{position:fixed;inset:0;background:#f5f4f0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;gap:16px}
 .loading-screen.hidden{display:none}
 .loading-spinner{width:32px;height:32px;border:3px solid rgba(124,58,237,.2);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:13px;color:var(--text2)}
+
+/* ── Sync page redesign ── */
+.sync-hero{background:var(--purple);border-radius:12px;padding:20px 24px;color:#fff;margin-bottom:16px}
+.sync-hero-title{font-size:18px;font-weight:600;margin-bottom:4px}
+.sync-hero-sub{font-size:12px;opacity:.8}
+.sync-hero-date{font-size:13px;margin-top:10px;opacity:.9}
+.platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.platform-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:11px;overflow:hidden}
+.platform-header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:0.5px solid var(--border)}
+.platform-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.platform-name{font-weight:600;font-size:13px}
+.platform-where{font-size:11px;color:var(--text2);margin-top:1px}
+.platform-fields{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.pf-row{display:flex;flex-direction:column;gap:3px}
+.pf-label{font-size:11px;font-weight:500;color:var(--text2);display:flex;align-items:center;gap:5px}
+.pf-hint{font-size:10px;color:var(--text3);font-style:italic}
+.pf-input{padding:7px 10px;border:0.5px solid var(--border2);border-radius:6px;font-size:13px;font-family:inherit;background:var(--bg2);color:var(--text);outline:none;width:100%}
+.pf-input:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,.1)}
+.save-bar{background:var(--bg2);border:0.5px solid var(--border);border-radius:11px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.save-bar-left{display:flex;flex-direction:column;gap:3px}
+.save-bar-label{font-size:13px;font-weight:500}
+.save-bar-sub{font-size:11px;color:var(--text2)}
+.week-input{padding:7px 10px;border:0.5px solid var(--border2);border-radius:6px;font-size:13px;font-family:inherit;background:var(--bg2);color:var(--text);outline:none}
+.week-input:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,.1)}
+.history-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:var(--bg3);margin-bottom:6px}
+.history-date{font-size:12px;font-weight:500;min-width:80px}
+.history-stats{display:flex;gap:12px;flex:1;flex-wrap:wrap}
+.history-stat{font-size:11px;color:var(--text2)}
+.history-stat strong{color:var(--text)}
+.history-edit{font-size:11px;color:var(--purple);cursor:pointer;text-decoration:underline;white-space:nowrap}
+.checklist{display:flex;flex-direction:column;gap:6px}
+.check-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.check-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background .2s}
+.check-dot.done{background:var(--green)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
@@ -148,7 +170,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
 </head>
 <body>
 
-<!-- Loading screen shown while fetching from Supabase -->
 <div class="loading-screen" id="loading-screen">
   <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#FF6B9D,#9B59B6,#3498DB);margin-bottom:4px"></div>
   <div class="loading-spinner"></div>
@@ -164,9 +185,9 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
   </div>
   <div class="nav">
     <button class="nav-btn active" onclick="nav('overview',this)">Overview</button>
-    <button class="nav-btn" onclick="nav('impact',this)">Impact</button>
+    <button class="nav-btn" onclick="nav('sync',this)">Weekly sync <span class="pulse" id="sync-pulse"></span></button>
     <button class="nav-btn" onclick="nav('campaigns',this)">Campaigns</button>
-    <button class="nav-btn" onclick="nav('sync',this)">Weekly sync</button>
+    <button class="nav-btn" onclick="nav('impact',this)">Impact</button>
     <button class="nav-btn" onclick="nav('settings',this)">Settings</button>
   </div>
 </div>
@@ -188,19 +209,20 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
   <label class="dot-row"><input type="checkbox" checked data-ctype="email" onchange="redraw()"><span class="t-dot" style="background:#00838f"></span><span class="d-label">Email</span></label>
   <label class="dot-row"><input type="checkbox" checked data-ctype="other" onchange="redraw()"><span class="t-dot" style="background:#616161"></span><span class="d-label">Other</span></label>
   <div class="sb-divider"></div>
-  <button class="add-btn" onclick="openModal()">+ Log activity</button>
+  <button class="sync-shortcut" onclick="nav('sync',document.querySelectorAll('.nav-btn')[1])">+ Weekly sync</button>
+  <button class="add-btn" onclick="openModal()">+ Log campaign</button>
 </div>
 
 <div class="content">
 
-  <!-- OVERVIEW PAGE -->
+  <!-- OVERVIEW -->
   <div class="page active" id="page-overview">
     <div class="metrics-row" id="metrics-row"></div>
     <div class="card">
       <div class="card-hd">
         <div>
           <div class="card-title">All sources — unified timeline</div>
-          <div class="card-sub">Normalised 0–100 · dashed verticals = campaign activity · hover any point for details</div>
+          <div class="card-sub">Normalised 0–100 · dashed verticals = campaign activity · hover for details</div>
         </div>
         <div class="range-btns">
           <button class="rb active" onclick="setRange(30,this)">30d</button>
@@ -228,7 +250,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
       </div>
       <div class="card">
         <div class="card-title" style="margin-bottom:2px">Website traffic vs ad spend</div>
-        <div class="card-sub">Sessions (left axis) · Spend NZD$ (right axis)</div>
+        <div class="card-sub">Sessions (left) · Spend NZD$ (right)</div>
         <div class="cw cw-sm"><canvas id="chart-traffic"></canvas></div>
       </div>
       <div class="card">
@@ -239,18 +261,165 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
     </div>
   </div>
 
-  <!-- IMPACT PAGE -->
-  <div class="page" id="page-impact">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div>
-        <div style="font-size:16px;font-weight:600">Campaign impact analysis</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px">7-day window before vs after each campaign · click to expand</div>
+  <!-- WEEKLY SYNC — PRIMARY PAGE -->
+  <div class="page" id="page-sync">
+
+    <!-- Hero bar -->
+    <div class="sync-hero">
+      <div class="sync-hero-title">Monday sync</div>
+      <div class="sync-hero-sub">Fill in last week's numbers from each platform — takes about 5 minutes</div>
+      <div class="sync-hero-date" id="sync-date-display"></div>
+    </div>
+
+    <!-- Week selector + checklist -->
+    <div class="save-bar" style="margin-bottom:0">
+      <div class="save-bar-left">
+        <div class="save-bar-label">Week ending (Sunday's date)</div>
+        <div class="save-bar-sub">Set this first before entering any numbers</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="date" class="week-input" id="sync-week" onchange="updateWeekDisplay()">
+        <button class="btn btn-primary" onclick="saveAllData()">Save all data</button>
       </div>
     </div>
-    <div id="impact-list"></div>
+
+    <!-- Platform cards grid -->
+    <div class="platform-grid">
+
+      <!-- Meta: Instagram & Facebook -->
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:#fce4ec">📱</div>
+          <div>
+            <div class="platform-name">Instagram & Facebook</div>
+            <div class="platform-where">business.facebook.com → Insights → set to Last 7 days</div>
+          </div>
+        </div>
+        <div class="platform-fields">
+          <div class="pf-row">
+            <label class="pf-label">Instagram followers (total)</label>
+            <span class="pf-hint">Insights → Audience → total IG followers right now</span>
+            <input type="number" class="pf-input" id="s-ig" placeholder="e.g. 1240" min="0">
+          </div>
+          <div class="pf-row">
+            <label class="pf-label">Facebook followers (total)</label>
+            <span class="pf-hint">Insights → Audience → total FB page followers right now</span>
+            <input type="number" class="pf-input" id="s-fb" placeholder="e.g. 860" min="0">
+          </div>
+          <div class="pf-row">
+            <label class="pf-label">Total reach this week</label>
+            <span class="pf-hint">Insights → Reach → Accounts reached (7 days)</span>
+            <input type="number" class="pf-input" id="s-reach" placeholder="e.g. 3400" min="0">
+          </div>
+          <div class="pf-row">
+            <label class="pf-label">Total interactions this week</label>
+            <span class="pf-hint">Insights → Engagement → likes + comments + shares</span>
+            <input type="number" class="pf-input" id="s-interactions" placeholder="e.g. 280" min="0">
+          </div>
+          <div class="pf-row">
+            <label class="pf-label">Ad spend this week (NZD$)</label>
+            <span class="pf-hint">Ads → Billing → amount spent (enter 0 if no ads ran)</span>
+            <input type="number" class="pf-input" id="s-spend" placeholder="e.g. 0" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- TikTok -->
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:#f3e5f5">🎵</div>
+          <div>
+            <div class="platform-name">TikTok</div>
+            <div class="platform-where">TikTok app → profile → ☰ → Creator tools → Analytics</div>
+          </div>
+        </div>
+        <div class="platform-fields">
+          <div class="pf-row">
+            <label class="pf-label">TikTok followers (total)</label>
+            <span class="pf-hint">Analytics → Followers tab → total count</span>
+            <input type="number" class="pf-input" id="s-tiktok-followers" placeholder="e.g. 420" min="0">
+          </div>
+          <div class="pf-row">
+            <label class="pf-label">Video views this week</label>
+            <span class="pf-hint">Analytics → Overview → Video views (Last 7 days)</span>
+            <input type="number" class="pf-input" id="s-tiktok" placeholder="e.g. 1800" min="0">
+          </div>
+        </div>
+
+        <!-- Sporty inside same column -->
+        <div class="platform-header" style="margin-top:8px;border-top:0.5px solid var(--border)">
+          <div class="platform-icon" style="background:#fff3e0">🏅</div>
+          <div>
+            <div class="platform-name">Sporty registrations</div>
+            <div class="platform-where">Sporty admin → Reports → Registrations → this week</div>
+          </div>
+        </div>
+        <div class="platform-fields">
+          <div class="pf-row">
+            <label class="pf-label">New registrations this week</label>
+            <span class="pf-hint">Count of new sign-ups in the last 7 days only</span>
+            <input type="number" class="pf-input" id="s-reg" placeholder="e.g. 12" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Analytics -->
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:#e8f5e9">📊</div>
+          <div>
+            <div class="platform-name">Google Analytics</div>
+            <div class="platform-where">analytics.google.com → Reports → Overview → Last 7 days</div>
+          </div>
+        </div>
+        <div class="platform-fields">
+          <div class="pf-row">
+            <label class="pf-label">Sessions this week</label>
+            <span class="pf-hint">Overview summary card labelled "Sessions"</span>
+            <input type="number" class="pf-input" id="s-sessions" placeholder="e.g. 540" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes / campaign reminder -->
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:#ede9fe">📝</div>
+          <div>
+            <div class="platform-name">Campaign this week?</div>
+            <div class="platform-where">Log any posts, events, or ads that happened</div>
+          </div>
+        </div>
+        <div class="platform-fields">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5">If you posted anything on social media, attended an event, or ran ads this week — log it as a campaign so it appears as a marker on the timeline chart.</div>
+          <button class="btn btn-primary" style="width:100%" onclick="openModal()">+ Log a campaign activity</button>
+          <div style="margin-top:10px">
+            <div style="font-size:11px;font-weight:500;color:var(--text2);margin-bottom:6px">Recent campaigns:</div>
+            <div id="sync-camp-list" style="display:flex;flex-direction:column;gap:4px"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Save bar -->
+    <div class="save-bar">
+      <div class="save-bar-left">
+        <div class="save-bar-label">Ready to save?</div>
+        <div class="save-bar-sub">Double-check your week ending date above, then click Save</div>
+      </div>
+      <button class="btn btn-primary" onclick="saveAllData()" style="padding:10px 24px;font-size:13px">Save all data →</button>
+    </div>
+
+    <!-- Past entries -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:8px">Past entries</div>
+      <div id="history-list"></div>
+    </div>
+
   </div>
 
-  <!-- CAMPAIGNS PAGE -->
+  <!-- CAMPAIGNS -->
   <div class="page" id="page-campaigns">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div style="font-size:16px;font-weight:600">All campaigns & activities</div>
@@ -267,90 +436,16 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
     <div id="camp-page-list"></div>
   </div>
 
-  <!-- SYNC PAGE -->
-  <div class="page" id="page-sync">
-    <div style="font-size:16px;font-weight:600;margin-bottom:4px">Weekly data sync</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Keep your dashboard current — takes about 5 minutes per week</div>
-    <div class="card">
-      <div class="card-title" style="margin-bottom:12px">Step 1 — Auto-pull (connect once, updates automatically)</div>
-      <div class="sync-row">
-        <div class="si" style="background:#fce4ec;font-size:18px">📷</div>
-        <div class="sinfo">
-          <div class="sname">Instagram & Facebook</div>
-          <div class="sdesc">Followers, reach, impressions, post engagement via Meta Business API</div>
-        </div>
-        <span class="badge badge-pending" id="meta-badge">Not connected</span>
-        <button class="btn btn-sm" onclick="connectMeta()">Connect</button>
-      </div>
-      <div class="sync-row">
-        <div class="si" style="background:#e8f5e9;font-size:18px">📊</div>
-        <div class="sinfo">
-          <div class="sname">Google Analytics 4</div>
-          <div class="sdesc">Website sessions, users, ad spend, conversions via GA4 API</div>
-        </div>
-        <span class="badge badge-pending" id="ga-badge">Not connected</span>
-        <button class="btn btn-sm" onclick="connectGA()">Connect</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="margin-bottom:12px">Step 2 — Upload exports (~2 min each)</div>
-      <div class="sync-row" style="flex-direction:column;align-items:flex-start">
-        <div style="display:flex;align-items:center;gap:12px;width:100%">
-          <div class="si" style="background:#f3e5f5;font-size:18px">🎵</div>
-          <div class="sinfo">
-            <div class="sname">TikTok analytics</div>
-            <div class="sdesc">Creator Center → Analytics → Export CSV → upload below</div>
-          </div>
-          <span class="badge badge-manual" id="tiktok-badge">Manual</span>
-        </div>
-        <div class="upload-area" onclick="document.getElementById('tiktok-file').click()">
-          <input type="file" id="tiktok-file" accept=".csv" onchange="handleUpload(this,'tiktok-badge','TikTok')">
-          <div style="font-size:13px;color:var(--text2)">Click to upload TikTok CSV export</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:3px">Creator Center → Analytics → Export data</div>
-        </div>
-      </div>
-      <div style="margin-top:10px"></div>
-      <div class="sync-row" style="flex-direction:column;align-items:flex-start">
-        <div style="display:flex;align-items:center;gap:12px;width:100%">
-          <div class="si" style="background:#fff3e0;font-size:18px">🏅</div>
-          <div class="sinfo">
-            <div class="sname">Sporty registrations</div>
-            <div class="sdesc">Admin → Reports → Registrations → Export CSV → upload below</div>
-          </div>
-          <span class="badge badge-manual" id="sporty-badge">Manual</span>
-        </div>
-        <div class="upload-area" onclick="document.getElementById('sporty-file').click()">
-          <input type="file" id="sporty-file" accept=".csv" onchange="handleUpload(this,'sporty-badge','Sporty')">
-          <div style="font-size:13px;color:var(--text2)">Click to upload Sporty registrations CSV</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:3px">Admin panel → Reports → Registrations → Export</div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="margin-bottom:4px">Step 3 — Manual entry</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Enter this week's numbers directly</div>
-      <div class="fr3">
-        <div class="fg"><label class="fl">Week ending</label><input type="date" class="fi" id="m-week"></div>
-        <div class="fg"><label class="fl">New IG followers</label><input type="number" class="fi" id="m-ig" placeholder="0"></div>
-        <div class="fg"><label class="fl">New FB followers</label><input type="number" class="fi" id="m-fb" placeholder="0"></div>
-      </div>
-      <div class="fr3">
-        <div class="fg"><label class="fl">Post reach (total)</label><input type="number" class="fi" id="m-reach" placeholder="0"></div>
-        <div class="fg"><label class="fl">Interactions</label><input type="number" class="fi" id="m-inter" placeholder="0"></div>
-        <div class="fg"><label class="fl">New registrations</label><input type="number" class="fi" id="m-reg" placeholder="0"></div>
-      </div>
-      <div class="fr3">
-        <div class="fg"><label class="fl">Website sessions</label><input type="number" class="fi" id="m-sess" placeholder="0"></div>
-        <div class="fg"><label class="fl">Ad spend (NZD$)</label><input type="number" class="fi" id="m-spend" placeholder="0"></div>
-        <div class="fg"><label class="fl">TikTok views</label><input type="number" class="fi" id="m-tiktok" placeholder="0"></div>
-      </div>
-      <button class="btn btn-primary" onclick="saveManual()">Save weekly data</button>
-    </div>
+  <!-- IMPACT -->
+  <div class="page" id="page-impact">
+    <div style="font-size:16px;font-weight:600;margin-bottom:2px">Campaign impact analysis</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Average metrics 2 weeks after vs 2 weeks before each campaign · click to expand</div>
+    <div id="impact-list"></div>
   </div>
 
-  <!-- SETTINGS PAGE -->
+  <!-- SETTINGS -->
   <div class="page" id="page-settings">
-    <div style="font-size:16px;font-weight:600;margin-bottom:12px">Settings & setup guide</div>
+    <div style="font-size:16px;font-weight:600;margin-bottom:12px">Settings</div>
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">Organisation</div>
       <div class="fr2">
@@ -363,33 +458,13 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
           </select>
         </div>
       </div>
-      <button class="btn" onclick="saveSettings()">Save settings</button>
+      <button class="btn" onclick="saveSettings()">Save</button>
     </div>
     <div class="card">
-      <div class="card-title" style="margin-bottom:12px">Database status</div>
+      <div class="card-title" style="margin-bottom:8px">Database status</div>
       <div style="display:flex;align-items:center;gap:10px;font-size:13px">
         <span id="db-status-dot" style="width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0"></span>
-        <span id="db-status-text" style="color:var(--text2)">Checking connection...</span>
-      </div>
-      <div style="font-size:12px;color:var(--text2);margin-top:10px">Connected to Supabase · data is saved permanently and shared across all devices</div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="margin-bottom:12px">API connection guide</div>
-      <div class="setup-step">
-        <div class="setup-step-title">1 — Meta Business API (Instagram + Facebook)</div>
-        <div class="setup-step-body">Go to <strong>developers.facebook.com</strong> → Create App → Add "Instagram Graph API" → Connect your Business account. Generate a long-lived Page Access Token. In your backend <code>.env</code> file, set <code>META_ACCESS_TOKEN=...</code> and <code>META_PAGE_ID=...</code>.</div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-step-title">2 — Google Analytics 4</div>
-        <div class="setup-step-body">Go to <strong>console.cloud.google.com</strong> → Create project → Enable "Google Analytics Data API" → Create a Service Account → Download the JSON key. Share your GA4 property with the service account email (Viewer role).</div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-step-title">3 — TikTok</div>
-        <div class="setup-step-body">Export weekly from <strong>Creator Center → Analytics → Export data</strong> and upload via the Weekly Sync panel.</div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-step-title">4 — Sporty</div>
-        <div class="setup-step-body">Export registrations from <strong>Admin → Reports → Registrations → Export CSV</strong> and upload via the Weekly Sync panel.</div>
+        <span id="db-status-text" style="color:var(--text2)">Checking...</span>
       </div>
     </div>
     <div class="card">
@@ -397,7 +472,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="exportData()">Export backup (JSON)</button>
       </div>
-      <div style="font-size:12px;color:var(--text2);margin-top:10px">Data is stored in Supabase and shared across all devices and team members.</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:10px">Data is stored in Supabase — permanent and shared across all devices.</div>
     </div>
   </div>
 
@@ -408,11 +483,15 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
 <!-- Campaign modal -->
 <div class="overlay" id="modal-overlay">
   <div class="modal">
-    <div class="modal-title" id="modal-title">Log marketing activity</div>
+    <div class="modal-title" id="modal-title">Log campaign activity</div>
     <input type="hidden" id="edit-id">
     <div class="fr2">
-      <div class="fg"><label class="fl">Activity name</label><input type="text" class="fi" id="c-name" placeholder="e.g. Pride March appearance"></div>
-      <div class="fg"><label class="fl">Type</label>
+      <div class="fg">
+        <label class="fl">Activity name</label>
+        <input type="text" class="fi" id="c-name" placeholder="e.g. Pride March appearance">
+      </div>
+      <div class="fg">
+        <label class="fl">Type</label>
         <select class="fi" id="c-type">
           <option value="social_post">Social post</option>
           <option value="event">Event / appearance</option>
@@ -423,8 +502,12 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
       </div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="c-date"></div>
-      <div class="fg"><label class="fl">Channels (hold Ctrl/Cmd for multiple)</label>
+      <div class="fg">
+        <label class="fl">Date</label>
+        <input type="date" class="fi" id="c-date">
+      </div>
+      <div class="fg">
+        <label class="fl">Channels (hold Ctrl/Cmd for multiple)</label>
         <select class="fi" id="c-channels" multiple style="height:72px">
           <option value="instagram">Instagram</option>
           <option value="facebook">Facebook</option>
@@ -436,11 +519,23 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
         </select>
       </div>
     </div>
-    <div class="fg"><label class="fl">Notes</label><textarea class="fi" id="c-notes" placeholder="What did you do? Budget, key details, reach estimate..."></textarea></div>
+    <div class="fg">
+      <label class="fl">Notes</label>
+      <textarea class="fi" id="c-notes" placeholder="What did you do? Any key details..."></textarea>
+    </div>
     <div class="fr3">
-      <div class="fg"><label class="fl">Estimated reach</label><input type="number" class="fi" id="c-reach" placeholder="0"></div>
-      <div class="fg"><label class="fl">Budget spent ($)</label><input type="number" class="fi" id="c-budget" placeholder="0"></div>
-      <div class="fg"><label class="fl">Direct registrations</label><input type="number" class="fi" id="c-regs" placeholder="0"></div>
+      <div class="fg">
+        <label class="fl">Estimated reach</label>
+        <input type="number" class="fi" id="c-reach" placeholder="0">
+      </div>
+      <div class="fg">
+        <label class="fl">Budget spent ($)</label>
+        <input type="number" class="fi" id="c-budget" placeholder="0">
+      </div>
+      <div class="fg">
+        <label class="fl">Direct registrations</label>
+        <input type="number" class="fi" id="c-regs" placeholder="0">
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
@@ -453,180 +548,106 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:monospa
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Supabase config ──────────────────────────────────────────────────────────
+// ─── Supabase ─────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://eitzydlwzakuemnddxss.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpdHp5ZGx3emFrdWVtbmRkeHNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMzAyNDcsImV4cCI6MjA4OTkwNjI0N30.26TL4uVZGl7EBz1jIUTZlsiI-3HZkWRcWI1Rwy-DJVU';
-
-// ─── Supabase API helpers ─────────────────────────────────────────────────────
-const SB_HEADERS = {
-  'apikey': SUPABASE_KEY,
-  'Authorization': 'Bearer ' + SUPABASE_KEY,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
-};
+const SB_H = { 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json' };
 
 async function sbSelect(table) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=created_at.asc`, { headers: SB_HEADERS });
-  if (!res.ok) throw new Error(`Failed to load ${table}: ${res.status}`);
-  return res.json();
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=created_at.asc`,{headers:SB_H});
+  if(!r.ok) throw new Error(`Load failed: ${r.status}`);
+  return r.json();
 }
-
 async function sbUpsert(table, row) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
-    body: JSON.stringify(row)
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{
+    method:'POST', headers:{...SB_H,'Prefer':'resolution=merge-duplicates,return=representation'},
+    body:JSON.stringify(row)
   });
-  if (!res.ok) { const e = await res.text(); throw new Error(`Save failed: ${e}`); }
-  return res.json();
+  if(!r.ok){const e=await r.text();throw new Error(e);}
+  return r.json();
 }
-
 async function sbDelete(table, id) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: SB_HEADERS
-  });
-  if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:SB_H});
+  if(!r.ok) throw new Error(`Delete failed: ${r.status}`);
 }
 
-// ─── In-memory store ──────────────────────────────────────────────────────────
-let db = { campaigns: [], weekly: [], settings: { org: 'Rainbow Games Tāmaki Makaurau', currency: 'NZD' } };
+// ─── Store ────────────────────────────────────────────────────────────────────
+let db = { campaigns:[], weekly:[], settings:{org:'Rainbow Games Tāmaki Makaurau',currency:'NZD'} };
+const TYPE_COLORS = {social_post:'#9c27b0',event:'#e91e63',ad_campaign:'#1976d2',email:'#00838f',other:'#616161'};
+const TYPE_LABELS = {social_post:'Social post',event:'Event',ad_campaign:'Ad campaign',email:'Email',other:'Other'};
+const M_COLORS = {registrations:'#7c3aed',reach:'#e91e63',interactions:'#d4537e',sessions:'#1976d2',igFollowers:'#f57c00',tiktokViews:'#7b1fa2'};
+const M_LABELS = {registrations:'Registrations',reach:'Reach',interactions:'Interactions',sessions:'Sessions',igFollowers:'IG followers',tiktokViews:'TikTok views'};
 
-const TYPE_COLORS = { social_post:'#9c27b0', event:'#e91e63', ad_campaign:'#1976d2', email:'#00838f', other:'#616161' };
-const TYPE_LABELS = { social_post:'Social post', event:'Event', ad_campaign:'Ad campaign', email:'Email', other:'Other' };
-const M_COLORS = { registrations:'#7c3aed', reach:'#e91e63', interactions:'#d4537e', sessions:'#1976d2', igFollowers:'#f57c00', tiktokViews:'#7b1fa2' };
-const M_LABELS = { registrations:'Registrations', reach:'Reach', interactions:'Interactions', sessions:'Sessions', igFollowers:'IG followers', tiktokViews:'TikTok views' };
-
-// ─── Load from Supabase ───────────────────────────────────────────────────────
 async function load() {
   setLoading('Connecting to database...');
   try {
-    const [weeklyRaw, campaignsRaw] = await Promise.all([
-      sbSelect('weekly_data'),
-      sbSelect('campaigns')
-    ]);
-
-    // Map Supabase snake_case columns back to camelCase for the app
-    db.weekly = weeklyRaw.map(w => ({
-      id: w.id,
-      weekEnding: w.week_ending,
-      igFollowers: w.ig_followers || 0,
-      fbFollowers: w.fb_followers || 0,
-      reach: w.reach || 0,
-      interactions: w.interactions || 0,
-      registrations: w.registrations || 0,
-      sessions: w.sessions || 0,
-      adSpend: parseFloat(w.ad_spend) || 0,
-      tiktokViews: w.tiktok_views || 0,
+    const [wr, cr] = await Promise.all([sbSelect('weekly_data'), sbSelect('campaigns')]);
+    db.weekly = wr.map(w=>({
+      id:w.id, weekEnding:w.week_ending,
+      igFollowers:w.ig_followers||0, fbFollowers:w.fb_followers||0,
+      reach:w.reach||0, interactions:w.interactions||0,
+      registrations:w.registrations||0, sessions:w.sessions||0,
+      adSpend:parseFloat(w.ad_spend)||0, tiktokViews:w.tiktok_views||0,
     }));
-
-    db.campaigns = campaignsRaw.map(c => ({
-      id: c.id,
-      name: c.name,
-      type: c.type,
-      date: c.date,
-      channels: c.channels || [],
-      notes: c.notes || '',
-      reach: c.reach || 0,
-      budget: parseFloat(c.budget) || 0,
-      registrations: c.registrations || 0,
+    db.campaigns = cr.map(c=>({
+      id:c.id,name:c.name,type:c.type,date:c.date,
+      channels:c.channels||[],notes:c.notes||'',
+      reach:c.reach||0,budget:parseFloat(c.budget)||0,registrations:c.registrations||0,
     }));
-
     setDbStatus(true);
-    hideLoading();
-  } catch (err) {
-    console.error('Supabase load error:', err);
+    checkSyncDue();
+  } catch(e) {
     setDbStatus(false);
-    hideLoading();
-    toast('Could not connect to database — check console for details');
+    toast('Could not connect to database');
+    console.error(e);
   }
+  hideLoading();
 }
 
-function setLoading(msg) {
-  document.getElementById('loading-text').textContent = msg;
-  document.getElementById('loading-screen').classList.remove('hidden');
-}
-function hideLoading() {
-  document.getElementById('loading-screen').classList.add('hidden');
-}
-function setDbStatus(ok) {
-  document.getElementById('db-status-dot').style.background = ok ? '#2d8a4e' : '#c0392b';
-  document.getElementById('db-status-text').textContent = ok
-    ? 'Connected — data is saving to Supabase'
-    : 'Connection failed — check your Supabase URL and API key in Settings';
+function setLoading(m){document.getElementById('loading-text').textContent=m;document.getElementById('loading-screen').classList.remove('hidden');}
+function hideLoading(){document.getElementById('loading-screen').classList.add('hidden');}
+function setDbStatus(ok){
+  document.getElementById('db-status-dot').style.background=ok?'#2d8a4e':'#c0392b';
+  document.getElementById('db-status-text').textContent=ok?'Connected — data saving to Supabase':'Connection failed';
 }
 
-// ─── Save weekly entry to Supabase ────────────────────────────────────────────
-async function saveWeeklyToSupabase(entry) {
-  const row = {
-    id: entry.id,
-    week_ending: entry.weekEnding,
-    ig_followers: entry.igFollowers,
-    fb_followers: entry.fbFollowers,
-    reach: entry.reach,
-    interactions: entry.interactions,
-    registrations: entry.registrations,
-    sessions: entry.sessions,
-    ad_spend: entry.adSpend,
-    tiktok_views: entry.tiktokViews,
-  };
-  await sbUpsert('weekly_data', row);
-}
-
-// ─── Save campaign to Supabase ────────────────────────────────────────────────
-async function saveCampaignToSupabase(obj) {
-  const row = {
-    id: obj.id,
-    name: obj.name,
-    type: obj.type,
-    date: obj.date,
-    channels: obj.channels,
-    notes: obj.notes,
-    reach: obj.reach,
-    budget: obj.budget,
-    registrations: obj.registrations,
-  };
-  await sbUpsert('campaigns', row);
+// ─── Sync due check ───────────────────────────────────────────────────────────
+function checkSyncDue() {
+  if (!db.weekly.length) { document.getElementById('sync-pulse').classList.add('show'); return; }
+  const last = new Date(db.weekly[db.weekly.length-1].weekEnding);
+  const daysSince = Math.floor((new Date()-last)/86400000);
+  if (daysSince >= 7) document.getElementById('sync-pulse').classList.add('show');
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let rangeWeeks = 30;
-let campFilter = 'all';
-let charts = {};
-
-function activeMetrics() { return [...document.querySelectorAll('[data-metric]')].filter(i=>i.checked).map(i=>i.dataset.metric); }
-function activeCtypes() { return [...document.querySelectorAll('[data-ctype]')].filter(i=>i.checked).map(i=>i.dataset.ctype); }
-
-function filteredWeekly() {
-  let d = [...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
-  if (rangeWeeks > 0) {
-    const cut = new Date(); cut.setDate(cut.getDate()-rangeWeeks);
-    d = d.filter(w => new Date(w.weekEnding) >= cut);
-  }
+let rangeWeeks=30, campFilter='all', charts={};
+function activeMetrics(){return[...document.querySelectorAll('[data-metric]')].filter(i=>i.checked).map(i=>i.dataset.metric);}
+function activeCtypes(){return[...document.querySelectorAll('[data-ctype]')].filter(i=>i.checked).map(i=>i.dataset.ctype);}
+function filteredWeekly(){
+  let d=[...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+  if(rangeWeeks>0){const cut=new Date();cut.setDate(cut.getDate()-rangeWeeks);d=d.filter(w=>new Date(w.weekEnding)>=cut);}
   return d;
 }
-function filteredCamps(data) {
-  if (!data.length) return [];
-  const s = new Date(data[0].weekEnding), e = new Date(data[data.length-1].weekEnding);
-  return db.campaigns.filter(c => { const d=new Date(c.date); return d>=s && d<=e; });
+function filteredCamps(data){
+  if(!data.length)return[];
+  const s=new Date(data[0].weekEnding),e=new Date(data[data.length-1].weekEnding);
+  return db.campaigns.filter(c=>{const d=new Date(c.date);return d>=s&&d<=e;});
 }
-function fmt(n) { return n>=1000 ? (n/1000).toFixed(1)+'k' : String(Math.round(n)); }
-function norm(arr) {
-  const mn=Math.min(...arr), mx=Math.max(...arr);
-  return mx===mn ? arr.map(()=>50) : arr.map(v=>Math.round((v-mn)/(mx-mn)*100));
-}
+function fmt(n){return n>=1000?(n/1000).toFixed(1)+'k':String(Math.round(n));}
+function norm(arr){const mn=Math.min(...arr),mx=Math.max(...arr);return mx===mn?arr.map(()=>50):arr.map(v=>Math.round((v-mn)/(mx-mn)*100));}
 
-// ─── Navigation ───────────────────────────────────────────────────────────────
-function nav(page, btn) {
+// ─── Nav ──────────────────────────────────────────────────────────────────────
+function nav(page,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   btn.classList.add('active');
-  if (page==='overview') redraw();
-  if (page==='impact') renderImpact();
-  if (page==='campaigns') renderCampPage();
+  if(page==='overview')redraw();
+  if(page==='sync')renderSync();
+  if(page==='impact')renderImpact();
+  if(page==='campaigns')renderCampPage();
 }
-function setRange(d, btn) {
+function setRange(d,btn){
   rangeWeeks=d;
   document.querySelectorAll('.rb').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -634,30 +655,24 @@ function setRange(d, btn) {
 }
 
 // ─── Redraw ───────────────────────────────────────────────────────────────────
-function redraw() {
-  renderMetrics();
-  renderMainChart();
-  renderSec();
-  renderCampSidebar();
-}
+function redraw(){renderMetrics();renderMainChart();renderSec();renderCampSidebar();}
 
-// ─── Metrics row ──────────────────────────────────────────────────────────────
-function renderMetrics() {
-  const data = filteredWeekly();
-  if (!data.length) {
-    document.getElementById('metrics-row').innerHTML = '<div style="font-size:13px;color:var(--text2);padding:16px 0;grid-column:1/-1">No data yet — use Weekly Sync to add your first week\'s numbers.</div>';
+function renderMetrics(){
+  const data=filteredWeekly();
+  if(!data.length){
+    document.getElementById('metrics-row').innerHTML='<div style="font-size:13px;color:var(--text2);padding:16px 0;grid-column:1/-1">No data yet — use <strong>Weekly sync</strong> to add your first week\'s numbers.</div>';
     return;
   }
-  const last = data[data.length-1], prev = data.length>1?data[data.length-2]:null;
-  const totalReg = data.reduce((s,w)=>s+(w.registrations||0),0);
-  const totalSpend = data.reduce((s,w)=>s+(w.adSpend||0),0);
-  const cpr = totalReg>0 ? Math.round(totalSpend/totalReg) : null;
-  function delt(f) {
-    if (!prev) return '';
-    const d=last[f]-prev[f], pct=prev[f]>0?Math.round(d/prev[f]*100):0;
-    return `<div class="mc-delta ${d>=0?'up':'down'}">${d>=0?'+':''}${pct}% vs prev wk</div>`;
+  const last=data[data.length-1],prev=data.length>1?data[data.length-2]:null;
+  const totalReg=data.reduce((s,w)=>s+(w.registrations||0),0);
+  const totalSpend=data.reduce((s,w)=>s+(w.adSpend||0),0);
+  const cpr=totalReg>0?Math.round(totalSpend/totalReg):null;
+  function delt(f){
+    if(!prev)return'';
+    const d=last[f]-prev[f],pct=prev[f]>0?Math.round(d/prev[f]*100):0;
+    return`<div class="mc-delta ${d>=0?'up':'down'}">${d>=0?'+':''}${pct}% vs prev wk</div>`;
   }
-  document.getElementById('metrics-row').innerHTML = [
+  document.getElementById('metrics-row').innerHTML=[
     {l:'Registrations (period)',v:totalReg.toLocaleString(),d:''},
     {l:'Reach (latest week)',v:fmt(last.reach||0),d:delt('reach')},
     {l:'IG followers',v:(last.igFollowers||0).toLocaleString(),d:delt('igFollowers')},
@@ -666,187 +681,246 @@ function renderMetrics() {
   ].map(c=>`<div class="mc"><div class="mc-label">${c.l}</div><div class="mc-val">${c.v}</div>${c.d}</div>`).join('');
 }
 
-// ─── Campaign annotation plugin ───────────────────────────────────────────────
-function annotPlugin(data, camps) {
-  const ctypes = activeCtypes();
-  return {
-    id:'annot',
-    afterDraw(chart) {
-      const {ctx,chartArea,scales} = chart;
-      if (!chartArea) return;
-      camps.filter(c=>ctypes.includes(c.type)).forEach(c => {
-        const cd = new Date(c.date);
-        let ci=0, md=Infinity;
-        data.forEach((w,i)=>{ const df=Math.abs(new Date(w.weekEnding)-cd); if(df<md){md=df;ci=i;} });
-        const xp = scales.x.getPixelForValue(ci);
-        if (xp<chartArea.left||xp>chartArea.right) return;
-        const col = TYPE_COLORS[c.type]||'#888';
-        ctx.save();
-        ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.setLineDash([3,3]); ctx.globalAlpha=0.65;
-        ctx.beginPath(); ctx.moveTo(xp,chartArea.top); ctx.lineTo(xp,chartArea.bottom); ctx.stroke();
-        ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
-        ctx.beginPath(); ctx.arc(xp,chartArea.top+6,5,0,Math.PI*2); ctx.fill();
-        ctx.restore();
-      });
-    }
-  };
+function annotPlugin(data,camps){
+  const ctypes=activeCtypes();
+  return{id:'annot',afterDraw(chart){
+    const{ctx,chartArea,scales}=chart;if(!chartArea)return;
+    camps.filter(c=>ctypes.includes(c.type)).forEach(c=>{
+      const cd=new Date(c.date);let ci=0,md=Infinity;
+      data.forEach((w,i)=>{const df=Math.abs(new Date(w.weekEnding)-cd);if(df<md){md=df;ci=i;}});
+      const xp=scales.x.getPixelForValue(ci);
+      if(xp<chartArea.left||xp>chartArea.right)return;
+      const col=TYPE_COLORS[c.type]||'#888';
+      ctx.save();ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.globalAlpha=0.65;
+      ctx.beginPath();ctx.moveTo(xp,chartArea.top);ctx.lineTo(xp,chartArea.bottom);ctx.stroke();
+      ctx.setLineDash([]);ctx.globalAlpha=1;ctx.fillStyle=col;
+      ctx.beginPath();ctx.arc(xp,chartArea.top+6,5,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+  }};
 }
 
-// ─── Main chart ───────────────────────────────────────────────────────────────
-function renderMainChart() {
-  const data = filteredWeekly();
-  if (!data.length) return;
-  const camps = filteredCamps(data);
-  const metrics = activeMetrics();
-  const labels = data.map(w=>{ const d=new Date(w.weekEnding); return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'}); });
-  const datasets = metrics.map(m=>({
-    label:M_LABELS[m], data:norm(data.map(w=>w[m]||0)),
-    borderColor:M_COLORS[m], backgroundColor:M_COLORS[m]+'12',
-    borderWidth:1.5, tension:0.35, fill:false,
-    pointRadius:3, pointHoverRadius:5, pointBackgroundColor:M_COLORS[m],
+function renderMainChart(){
+  const data=filteredWeekly();if(!data.length)return;
+  const camps=filteredCamps(data),metrics=activeMetrics();
+  const labels=data.map(w=>{const d=new Date(w.weekEnding);return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});});
+  const datasets=metrics.map(m=>({
+    label:M_LABELS[m],data:norm(data.map(w=>w[m]||0)),
+    borderColor:M_COLORS[m],backgroundColor:M_COLORS[m]+'12',
+    borderWidth:1.5,tension:0.35,fill:false,
+    pointRadius:3,pointHoverRadius:5,pointBackgroundColor:M_COLORS[m],
   }));
-  if (charts.main) charts.main.destroy();
-  const ctx = document.getElementById('main-chart').getContext('2d');
-  charts.main = new Chart(ctx, {
-    type:'line', data:{labels,datasets},
+  if(charts.main)charts.main.destroy();
+  const ctx=document.getElementById('main-chart').getContext('2d');
+  charts.main=new Chart(ctx,{
+    type:'line',data:{labels,datasets},
     options:{
-      responsive:true, maintainAspectRatio:false,
+      responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          enabled:false,
-          external(context) {
-            const tt = document.getElementById('main-tt');
-            if (context.tooltip.opacity===0){tt.classList.remove('on');return;}
-            const idx = context.tooltip.dataPoints?.[0]?.dataIndex;
-            if (idx===undefined) return;
-            const week = data[idx];
-            let html = `<div class="tt-title">${labels[idx]}</div>`;
-            metrics.forEach(m=>{
-              html+=`<div class="tt-row"><span class="tt-l" style="color:${M_COLORS[m]}">${M_LABELS[m]}</span><span class="tt-v">${fmt(week[m]||0)}</span></div>`;
-            });
-            const wc = camps.filter(c=>{
-              const cd=new Date(c.date),wd=new Date(week.weekEnding);
-              const pv=new Date(wd); pv.setDate(wd.getDate()-6);
-              return cd>=pv && cd<=wd;
-            });
-            if (wc.length) {
-              html+=`<div class="tt-camp">`;
-              wc.forEach(c=>{ html+=`<div style="color:${TYPE_COLORS[c.type]}">${TYPE_LABELS[c.type]}: ${c.name}</div>`; });
-              html+='</div>';
-            }
-            tt.innerHTML=html;
-            const wrap = document.getElementById('main-wrap');
-            let tx = context.tooltip.caretX+14;
-            if (tx+210>wrap.offsetWidth) tx=context.tooltip.caretX-218;
-            tt.style.left=tx+'px';
-            tt.style.top=Math.max(0,context.tooltip.caretY-30)+'px';
-            tt.classList.add('on');
-          }
-        }
-      },
-      scales:{
-        x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}},
-        y:{min:0,max:100,ticks:{font:{size:11},callback:v=>v+''},grid:{color:'rgba(0,0,0,0.04)'}}
-      }
+      plugins:{legend:{display:false},tooltip:{enabled:false,external(context){
+        const tt=document.getElementById('main-tt');
+        if(context.tooltip.opacity===0){tt.classList.remove('on');return;}
+        const idx=context.tooltip.dataPoints?.[0]?.dataIndex;if(idx===undefined)return;
+        const week=data[idx];
+        let html=`<div class="tt-title">${labels[idx]}</div>`;
+        metrics.forEach(m=>{html+=`<div class="tt-row"><span class="tt-l" style="color:${M_COLORS[m]}">${M_LABELS[m]}</span><span class="tt-v">${fmt(week[m]||0)}</span></div>`;});
+        const wc=camps.filter(c=>{const cd=new Date(c.date),wd=new Date(week.weekEnding),pv=new Date(wd);pv.setDate(wd.getDate()-6);return cd>=pv&&cd<=wd;});
+        if(wc.length){html+=`<div class="tt-camp">`;wc.forEach(c=>{html+=`<div style="color:${TYPE_COLORS[c.type]}">${TYPE_LABELS[c.type]}: ${c.name}</div>`;});html+='</div>';}
+        tt.innerHTML=html;
+        const wrap=document.getElementById('main-wrap');
+        let tx=context.tooltip.caretX+14;
+        if(tx+210>wrap.offsetWidth)tx=context.tooltip.caretX-218;
+        tt.style.left=tx+'px';tt.style.top=Math.max(0,context.tooltip.caretY-30)+'px';
+        tt.classList.add('on');
+      }}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}},y:{min:0,max:100,ticks:{font:{size:11},callback:v=>v+''},grid:{color:'rgba(0,0,0,0.04)'}}}
     },
     plugins:[annotPlugin(data,camps)]
   });
-  const leg = document.getElementById('main-legend');
-  let lh = metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${M_COLORS[m]}"></span>${M_LABELS[m]}</span>`).join('');
-  activeCtypes().forEach(ct=>{
-    const visible = camps.filter(c=>c.type===ct);
-    if (visible.length) lh+=`<span class="leg"><span class="leg-vl" style="border-color:${TYPE_COLORS[ct]};background:${TYPE_COLORS[ct]}20"></span>${TYPE_LABELS[ct]}</span>`;
-  });
+  const leg=document.getElementById('main-legend');
+  let lh=metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${M_COLORS[m]}"></span>${M_LABELS[m]}</span>`).join('');
+  activeCtypes().forEach(ct=>{const vis=camps.filter(c=>c.type===ct);if(vis.length)lh+=`<span class="leg"><span class="leg-vl" style="border-color:${TYPE_COLORS[ct]};background:${TYPE_COLORS[ct]}20"></span>${TYPE_LABELS[ct]}</span>`;});
   leg.innerHTML=lh;
 }
 
-// ─── Secondary charts ─────────────────────────────────────────────────────────
-function renderSec() {
-  const data = filteredWeekly();
-  if (!data.length) return;
-  const labels = data.map(w=>{ const d=new Date(w.weekEnding); return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'}); });
-  const tickOpts = {font:{size:10},maxTicksLimit:6};
-  const gridFaint = {color:'rgba(0,0,0,0.04)'};
-  if (charts.reg) charts.reg.destroy();
-  charts.reg = new Chart(document.getElementById('chart-reg').getContext('2d'),{
-    type:'bar', data:{labels,datasets:[{data:data.map(w=>w.registrations||0),backgroundColor:'rgba(124,58,237,.18)',borderColor:'#7c3aed',borderWidth:1.5,borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:tickOpts},y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint}}}
-  });
-  if (charts.social) charts.social.destroy();
-  charts.social = new Chart(document.getElementById('chart-social').getContext('2d'),{
-    type:'line', data:{labels,datasets:[
-      {label:'Reach',data:data.map(w=>w.reach||0),borderColor:'#e91e63',backgroundColor:'rgba(233,30,99,.07)',tension:0.3,fill:true,borderWidth:1.5,pointRadius:2},
-      {label:'Interactions',data:data.map(w=>w.interactions||0),borderColor:'#d4537e',backgroundColor:'transparent',tension:0.3,borderWidth:1.5,pointRadius:2}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:tickOpts},y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint}}}
-  });
-  if (charts.traffic) charts.traffic.destroy();
-  charts.traffic = new Chart(document.getElementById('chart-traffic').getContext('2d'),{
-    type:'line', data:{labels,datasets:[
-      {label:'Sessions',data:data.map(w=>w.sessions||0),borderColor:'#1976d2',backgroundColor:'rgba(25,118,210,.07)',tension:0.3,fill:true,borderWidth:1.5,pointRadius:2,yAxisID:'y'},
-      {label:'Ad spend',data:data.map(w=>w.adSpend||0),borderColor:'#f57c00',backgroundColor:'transparent',tension:0.3,borderWidth:1.5,borderDash:[4,3],pointRadius:2,yAxisID:'y1'}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
-      x:{grid:{display:false},ticks:tickOpts},
-      y:{beginAtZero:true,ticks:tickOpts,grid:gridFaint},
-      y1:{beginAtZero:true,position:'right',ticks:{...tickOpts,callback:v=>'$'+v},grid:{display:false}}
-    }}
+function renderSec(){
+  const data=filteredWeekly();if(!data.length)return;
+  const labels=data.map(w=>{const d=new Date(w.weekEnding);return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});});
+  const to={font:{size:10},maxTicksLimit:6},gf={color:'rgba(0,0,0,0.04)'};
+  if(charts.reg)charts.reg.destroy();
+  charts.reg=new Chart(document.getElementById('chart-reg').getContext('2d'),{type:'bar',data:{labels,datasets:[{data:data.map(w=>w.registrations||0),backgroundColor:'rgba(124,58,237,.18)',borderColor:'#7c3aed',borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:to},y:{beginAtZero:true,ticks:to,grid:gf}}}});
+  if(charts.social)charts.social.destroy();
+  charts.social=new Chart(document.getElementById('chart-social').getContext('2d'),{type:'line',data:{labels,datasets:[{label:'Reach',data:data.map(w=>w.reach||0),borderColor:'#e91e63',backgroundColor:'rgba(233,30,99,.07)',tension:0.3,fill:true,borderWidth:1.5,pointRadius:2},{label:'Interactions',data:data.map(w=>w.interactions||0),borderColor:'#d4537e',backgroundColor:'transparent',tension:0.3,borderWidth:1.5,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:to},y:{beginAtZero:true,ticks:to,grid:gf}}}});
+  if(charts.traffic)charts.traffic.destroy();
+  charts.traffic=new Chart(document.getElementById('chart-traffic').getContext('2d'),{type:'line',data:{labels,datasets:[{label:'Sessions',data:data.map(w=>w.sessions||0),borderColor:'#1976d2',backgroundColor:'rgba(25,118,210,.07)',tension:0.3,fill:true,borderWidth:1.5,pointRadius:2,yAxisID:'y'},{label:'Ad spend',data:data.map(w=>w.adSpend||0),borderColor:'#f57c00',backgroundColor:'transparent',tension:0.3,borderWidth:1.5,borderDash:[4,3],pointRadius:2,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:to},y:{beginAtZero:true,ticks:to,grid:gf},y1:{beginAtZero:true,position:'right',ticks:{...to,callback:v=>'$'+v},grid:{display:false}}}}});
+}
+
+function renderCampSidebar(){
+  const data=filteredWeekly();
+  const camps=filteredCamps(data).filter(c=>activeCtypes().includes(c.type)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('camp-sidebar-list').innerHTML=camps.length
+    ?camps.slice(0,6).map(c=>`<div class="camp-row"><div class="cdot" style="background:${TYPE_COLORS[c.type]}"></div><div><div class="cname">${c.name}</div><div class="cmeta">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short'})} · ${TYPE_LABELS[c.type]}${c.registrations?' · '+c.registrations+' reg':''}</div></div></div>`).join('')
+    :'<div style="font-size:12px;color:var(--text2);padding:6px">No campaigns in range</div>';
+}
+
+// ─── Sync page ────────────────────────────────────────────────────────────────
+function renderSync() {
+  // Set default week to last Sunday
+  const today = new Date();
+  const day = today.getDay();
+  const lastSunday = new Date(today);
+  lastSunday.setDate(today.getDate() - (day === 0 ? 7 : day));
+  const weekStr = lastSunday.toISOString().split('T')[0];
+  document.getElementById('sync-week').value = weekStr;
+  updateWeekDisplay();
+
+  // Pre-fill if we have data for this week
+  const existing = db.weekly.find(w => w.weekEnding === weekStr);
+  if (existing) prefillSyncForm(existing);
+
+  renderHistory();
+  renderSyncCampList();
+}
+
+function updateWeekDisplay() {
+  const week = document.getElementById('sync-week').value;
+  if (!week) return;
+  const d = new Date(week);
+  const display = d.toLocaleDateString('en-NZ', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('sync-date-display').textContent = `Entering data for the week ending: ${display}`;
+
+  // Pre-fill if existing data
+  const existing = db.weekly.find(w => w.weekEnding === week);
+  if (existing) prefillSyncForm(existing);
+  else clearSyncForm();
+}
+
+function prefillSyncForm(w) {
+  document.getElementById('s-ig').value = w.igFollowers || '';
+  document.getElementById('s-fb').value = w.fbFollowers || '';
+  document.getElementById('s-reach').value = w.reach || '';
+  document.getElementById('s-interactions').value = w.interactions || '';
+  document.getElementById('s-spend').value = w.adSpend || '';
+  document.getElementById('s-tiktok').value = w.tiktokViews || '';
+  document.getElementById('s-sessions').value = w.sessions || '';
+  document.getElementById('s-reg').value = w.registrations || '';
+}
+
+function clearSyncForm() {
+  ['s-ig','s-fb','s-reach','s-interactions','s-spend','s-tiktok','s-sessions','s-reg','s-tiktok-followers'].forEach(id => {
+    document.getElementById(id).value = '';
   });
 }
 
-function renderCampSidebar() {
-  const data = filteredWeekly();
-  const camps = filteredCamps(data).filter(c=>activeCtypes().includes(c.type)).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  document.getElementById('camp-sidebar-list').innerHTML = camps.length
-    ? camps.slice(0,6).map(c=>`<div class="camp-row"><div class="cdot" style="background:${TYPE_COLORS[c.type]}"></div><div><div class="cname">${c.name}</div><div class="cmeta">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short'})} · ${TYPE_LABELS[c.type]}${c.registrations?' · '+c.registrations+' reg':''}</div></div></div>`).join('')
-    : '<div style="font-size:12px;color:var(--text2);padding:6px">No campaigns in range</div>';
+function renderHistory() {
+  const sorted = [...db.weekly].sort((a,b) => new Date(b.weekEnding) - new Date(a.weekEnding));
+  const el = document.getElementById('history-list');
+  if (!sorted.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text2)">No entries yet — fill in this week\'s numbers above to get started.</div>'; return; }
+  el.innerHTML = sorted.slice(0,10).map(w => `
+    <div class="history-row">
+      <div class="history-date">${new Date(w.weekEnding).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'2-digit'})}</div>
+      <div class="history-stats">
+        ${w.registrations?`<span class="history-stat">Reg: <strong>${w.registrations}</strong></span>`:''}
+        ${w.reach?`<span class="history-stat">Reach: <strong>${fmt(w.reach)}</strong></span>`:''}
+        ${w.igFollowers?`<span class="history-stat">IG: <strong>${w.igFollowers.toLocaleString()}</strong></span>`:''}
+        ${w.sessions?`<span class="history-stat">Sessions: <strong>${fmt(w.sessions)}</strong></span>`:''}
+        ${w.tiktokViews?`<span class="history-stat">TikTok: <strong>${fmt(w.tiktokViews)}</strong></span>`:''}
+      </div>
+      <span class="history-edit" onclick="loadWeekForEdit('${w.weekEnding}')">Edit</span>
+    </div>`).join('');
 }
 
-// ─── Impact page ──────────────────────────────────────────────────────────────
-function renderImpact() {
-  const sorted = [...db.campaigns].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  document.getElementById('impact-list').innerHTML = sorted.length
-    ? sorted.map(c=>{
-        const cd=new Date(c.date);
-        const before = db.weekly.filter(w=>{ const d=new Date(w.weekEnding); return d<cd && d>=new Date(cd-14*86400000); });
-        const after  = db.weekly.filter(w=>{ const d=new Date(w.weekEnding); return d>cd && d<=new Date(cd.getTime()+14*86400000); });
-        function avg(arr,f){ return arr.length?Math.round(arr.reduce((s,w)=>s+(w[f]||0),0)/arr.length):null; }
-        function impM(label,field){
-          const b=avg(before,field),a=avg(after,field);
-          if(b===null&&a===null) return '';
-          const diff=b!==null&&a!==null?a-b:null;
-          const pct=b&&b>0&&diff!==null?Math.round(diff/b*100):null;
-          const col=diff>0?'#2d8a4e':diff<0?'#c0392b':'#888';
-          return `<div class="imp-m"><div class="imp-ml">${label}</div><div class="imp-mv">${a!==null?fmt(a):'—'}</div>${pct!==null?`<div class="imp-md" style="color:${col}">${diff>0?'+':''}${pct}% vs before</div>`:'<div class="imp-md" style="color:var(--text2)">no prior data</div>'}</div>`;
-        }
-        return `<div class="imp-card">
-          <div class="imp-hd" onclick="toggleImp('i${c.id}')">
-            <div class="cdot" style="background:${TYPE_COLORS[c.type]||'#888'};width:9px;height:9px;border-radius:50%;flex-shrink:0"></div>
-            <div style="flex:1">
-              <span style="font-weight:500;font-size:13px">${c.name}</span>
-              <span style="font-size:11px;color:var(--text2);margin-left:8px">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'})}</span>
-              ${(c.channels||[]).map(ch=>`<span class="pill pill-${ch}">${ch}</span>`).join('')}
-            </div>
-            <span style="font-size:11px;color:var(--text2);flex-shrink:0">▾ expand</span>
+function loadWeekForEdit(weekEnding) {
+  document.getElementById('sync-week').value = weekEnding;
+  updateWeekDisplay();
+  window.scrollTo(0,0);
+  document.querySelector('.sync-hero').scrollIntoView({behavior:'smooth'});
+}
+
+function renderSyncCampList() {
+  const recent = [...db.campaigns].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,3);
+  document.getElementById('sync-camp-list').innerHTML = recent.length
+    ? recent.map(c => `<div style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:${TYPE_COLORS[c.type]};flex-shrink:0"></span>${c.name} <span style="opacity:.6">· ${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short'})}</span></div>`).join('')
+    : '<div style="font-size:11px;color:var(--text3)">No campaigns logged yet</div>';
+}
+
+async function saveAllData() {
+  const week = document.getElementById('sync-week').value;
+  if (!week) { toast('Please select a week ending date first'); return; }
+  const entry = {
+    id: 'w-'+week, weekEnding: week,
+    igFollowers: parseInt(document.getElementById('s-ig').value)||0,
+    fbFollowers: parseInt(document.getElementById('s-fb').value)||0,
+    reach: parseInt(document.getElementById('s-reach').value)||0,
+    interactions: parseInt(document.getElementById('s-interactions').value)||0,
+    registrations: parseInt(document.getElementById('s-reg').value)||0,
+    sessions: parseInt(document.getElementById('s-sessions').value)||0,
+    adSpend: parseInt(document.getElementById('s-spend').value)||0,
+    tiktokViews: parseInt(document.getElementById('s-tiktok').value)||0,
+  };
+  try {
+    await sbUpsert('weekly_data', {
+      id:entry.id, week_ending:entry.weekEnding,
+      ig_followers:entry.igFollowers, fb_followers:entry.fbFollowers,
+      reach:entry.reach, interactions:entry.interactions,
+      registrations:entry.registrations, sessions:entry.sessions,
+      ad_spend:entry.adSpend, tiktok_views:entry.tiktokViews,
+    });
+    const ei = db.weekly.findIndex(w=>w.weekEnding===week);
+    if(ei>=0) db.weekly[ei]=entry; else db.weekly.push(entry);
+    db.weekly.sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+    document.getElementById('sync-pulse').classList.remove('show');
+    renderHistory();
+    toast('Week saved to database ✓');
+  } catch(e) {
+    toast('Save failed — check your connection');
+    console.error(e);
+  }
+}
+
+// ─── Impact ───────────────────────────────────────────────────────────────────
+function renderImpact(){
+  const sorted=[...db.campaigns].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('impact-list').innerHTML=sorted.length
+    ?sorted.map(c=>{
+      const cd=new Date(c.date);
+      const before=db.weekly.filter(w=>{const d=new Date(w.weekEnding);return d<cd&&d>=new Date(cd-14*86400000);});
+      const after=db.weekly.filter(w=>{const d=new Date(w.weekEnding);return d>cd&&d<=new Date(cd.getTime()+14*86400000);});
+      function avg(arr,f){return arr.length?Math.round(arr.reduce((s,w)=>s+(w[f]||0),0)/arr.length):null;}
+      function impM(label,field){
+        const b=avg(before,field),a=avg(after,field);
+        if(b===null&&a===null)return'';
+        const diff=b!==null&&a!==null?a-b:null;
+        const pct=b&&b>0&&diff!==null?Math.round(diff/b*100):null;
+        const col=diff>0?'#2d8a4e':diff<0?'#c0392b':'#888';
+        return`<div class="imp-m"><div class="imp-ml">${label}</div><div class="imp-mv">${a!==null?fmt(a):'—'}</div>${pct!==null?`<div class="imp-md" style="color:${col}">${diff>0?'+':''}${pct}% vs before</div>`:'<div class="imp-md" style="color:var(--text2)">no prior data</div>'}</div>`;
+      }
+      return`<div class="imp-card">
+        <div class="imp-hd" onclick="toggleImp('i${c.id}')">
+          <div class="cdot" style="background:${TYPE_COLORS[c.type]||'#888'};width:9px;height:9px;border-radius:50%;flex-shrink:0"></div>
+          <div style="flex:1">
+            <span style="font-weight:500;font-size:13px">${c.name}</span>
+            <span style="font-size:11px;color:var(--text2);margin-left:8px">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'})}</span>
+            ${(c.channels||[]).map(ch=>`<span class="pill pill-${ch}">${ch}</span>`).join('')}
           </div>
-          <div class="imp-body" id="i${c.id}">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Average weekly metrics: 2 weeks after vs 2 weeks before</div>
-            <div class="imp-grid">
-              ${impM('Registrations','registrations')}${impM('Reach','reach')}${impM('Interactions','interactions')}
-              ${impM('Sessions','sessions')}${impM('IG followers','igFollowers')}${impM('TikTok views','tiktokViews')}
-            </div>
-            ${c.registrations?`<div style="margin-top:8px;font-size:12px;color:var(--text2)">Directly attributed: <strong>${c.registrations} registrations</strong>${c.budget?' · Budget: <strong>$'+c.budget+'</strong> · Cost per reg: <strong>$'+Math.round(c.budget/c.registrations)+'</strong>':''}</div>`:''}
-            ${c.notes?`<div style="margin-top:4px;font-size:12px;color:var(--text2)">${c.notes}</div>`:''}
+          <span style="font-size:11px;color:var(--text2);flex-shrink:0">▾ expand</span>
+        </div>
+        <div class="imp-body" id="i${c.id}">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">2 weeks after vs 2 weeks before</div>
+          <div class="imp-grid">
+            ${impM('Registrations','registrations')}${impM('Reach','reach')}${impM('Interactions','interactions')}
+            ${impM('Sessions','sessions')}${impM('IG followers','igFollowers')}${impM('TikTok views','tiktokViews')}
           </div>
-        </div>`;
-      }).join('')
-    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No campaigns logged yet — add one under the Campaigns tab.</div>';
+          ${c.registrations?`<div style="margin-top:8px;font-size:12px;color:var(--text2)">Directly attributed: <strong>${c.registrations} registrations</strong>${c.budget?' · Budget: <strong>$'+c.budget+'</strong> · Cost per reg: <strong>$'+Math.round(c.budget/c.registrations)+'</strong>':''}</div>`:''}
+          ${c.notes?`<div style="margin-top:4px;font-size:12px;color:var(--text2)">${c.notes}</div>`:''}
+        </div>
+      </div>`;
+    }).join('')
+    :'<div style="font-size:13px;color:var(--text2);padding:20px 0">No campaigns logged yet.</div>';
 }
-function toggleImp(id){ document.getElementById(id).classList.toggle('open'); }
+function toggleImp(id){document.getElementById(id).classList.toggle('open');}
 
-// ─── Campaigns page ───────────────────────────────────────────────────────────
+// ─── Campaigns ────────────────────────────────────────────────────────────────
 function filterCamps(type,btn){
   campFilter=type;
   document.querySelectorAll('#camp-filter-row .rb').forEach(b=>b.classList.remove('active'));
@@ -855,32 +929,30 @@ function filterCamps(type,btn){
 }
 function renderCampPage(){
   let camps=[...db.campaigns].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(campFilter!=='all') camps=camps.filter(c=>c.type===campFilter);
-  document.getElementById('camp-page-list').innerHTML = camps.length
-    ? camps.map(c=>`<div style="border:0.5px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:8px;background:var(--bg2);display:flex;align-items:flex-start;gap:10px">
-        <div class="cdot" style="background:${TYPE_COLORS[c.type]||'#888'};width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0"></div>
-        <div style="flex:1">
-          <div style="font-weight:500;font-size:13px">${c.name}</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'})} · ${TYPE_LABELS[c.type]}</div>
-          <div style="margin-top:4px">${(c.channels||[]).map(ch=>`<span class="pill pill-${ch}">${ch}</span>`).join('')}</div>
-          ${c.notes?`<div style="font-size:12px;color:var(--text2);margin-top:5px">${c.notes}</div>`:''}
-          <div style="display:flex;gap:14px;margin-top:6px">
-            ${c.reach?`<span style="font-size:12px;color:var(--text2)">Reach: <strong>${c.reach.toLocaleString()}</strong></span>`:''}
-            ${c.budget?`<span style="font-size:12px;color:var(--text2)">Spend: <strong>$${c.budget}</strong></span>`:''}
-            ${c.registrations?`<span style="font-size:12px;color:var(--text2)">Registrations: <strong>${c.registrations}</strong></span>`:''}
-          </div>
+  if(campFilter!=='all')camps=camps.filter(c=>c.type===campFilter);
+  document.getElementById('camp-page-list').innerHTML=camps.length
+    ?camps.map(c=>`<div style="border:0.5px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:8px;background:var(--bg2);display:flex;align-items:flex-start;gap:10px">
+      <div class="cdot" style="background:${TYPE_COLORS[c.type]||'#888'};width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:13px">${c.name}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">${new Date(c.date).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'})} · ${TYPE_LABELS[c.type]}</div>
+        <div style="margin-top:4px">${(c.channels||[]).map(ch=>`<span class="pill pill-${ch}">${ch}</span>`).join('')}</div>
+        ${c.notes?`<div style="font-size:12px;color:var(--text2);margin-top:5px">${c.notes}</div>`:''}
+        <div style="display:flex;gap:14px;margin-top:6px">
+          ${c.reach?`<span style="font-size:12px;color:var(--text2)">Reach: <strong>${c.reach.toLocaleString()}</strong></span>`:''}
+          ${c.budget?`<span style="font-size:12px;color:var(--text2)">Spend: <strong>$${c.budget}</strong></span>`:''}
+          ${c.registrations?`<span style="font-size:12px;color:var(--text2)">Registrations: <strong>${c.registrations}</strong></span>`:''}
         </div>
-        <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="btn btn-sm" onclick="editCampaign('${c.id}')">Edit</button>
-        </div>
-      </div>`).join('')
-    : '<div style="font-size:13px;color:var(--text2);padding:20px 0">No activities logged yet — click "+ Log activity" to add your first one.</div>';
+      </div>
+      <button class="btn btn-sm" onclick="editCampaign('${c.id}')">Edit</button>
+    </div>`).join('')
+    :'<div style="font-size:13px;color:var(--text2);padding:20px 0">No activities logged yet.</div>';
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 function openModal(){
   document.getElementById('edit-id').value='';
-  document.getElementById('modal-title').textContent='Log marketing activity';
+  document.getElementById('modal-title').textContent='Log campaign activity';
   document.getElementById('c-name').value='';
   document.getElementById('c-type').value='social_post';
   document.getElementById('c-date').value=new Date().toISOString().split('T')[0];
@@ -893,7 +965,7 @@ function openModal(){
   document.getElementById('modal-overlay').classList.add('on');
 }
 function editCampaign(id){
-  const c=db.campaigns.find(x=>x.id===id); if(!c) return;
+  const c=db.campaigns.find(x=>x.id===id);if(!c)return;
   document.getElementById('edit-id').value=id;
   document.getElementById('modal-title').textContent='Edit activity';
   document.getElementById('c-name').value=c.name;
@@ -907,7 +979,7 @@ function editCampaign(id){
   [...document.getElementById('c-channels').options].forEach(o=>o.selected=(c.channels||[]).includes(o.value));
   document.getElementById('modal-overlay').classList.add('on');
 }
-function closeModal(){ document.getElementById('modal-overlay').classList.remove('on'); }
+function closeModal(){document.getElementById('modal-overlay').classList.remove('on');}
 
 async function saveCampaign(){
   const name=document.getElementById('c-name').value.trim();
@@ -915,76 +987,31 @@ async function saveCampaign(){
   const channels=[...document.getElementById('c-channels').selectedOptions].map(o=>o.value);
   const eid=document.getElementById('edit-id').value;
   const obj={
-    id: eid||'c'+Date.now(), name,
+    id:eid||'c'+Date.now(),name,
     type:document.getElementById('c-type').value,
     date:document.getElementById('c-date').value,
-    channels, notes:document.getElementById('c-notes').value.trim(),
+    channels,notes:document.getElementById('c-notes').value.trim(),
     reach:parseInt(document.getElementById('c-reach').value)||0,
     budget:parseInt(document.getElementById('c-budget').value)||0,
     registrations:parseInt(document.getElementById('c-regs').value)||0,
   };
   try {
-    await saveCampaignToSupabase(obj);
-    if(eid){ const i=db.campaigns.findIndex(x=>x.id===eid); if(i>=0) db.campaigns[i]=obj; }
+    await sbUpsert('campaigns',{id:obj.id,name:obj.name,type:obj.type,date:obj.date,channels:obj.channels,notes:obj.notes,reach:obj.reach,budget:obj.budget,registrations:obj.registrations});
+    if(eid){const i=db.campaigns.findIndex(x=>x.id===eid);if(i>=0)db.campaigns[i]=obj;}
     else db.campaigns.push(obj);
-    closeModal(); redraw(); renderCampPage(); renderImpact();
-    toast('Activity saved to database ✓');
-  } catch(e) {
-    toast('Save failed — check your connection');
-    console.error(e);
-  }
+    closeModal();redraw();renderCampPage();renderImpact();renderSyncCampList();
+    toast('Campaign saved ✓');
+  } catch(e){toast('Save failed');console.error(e);}
 }
-
 async function deleteCampaign(){
   const eid=document.getElementById('edit-id').value;
-  if(!eid||!confirm('Delete this activity?')) return;
-  try {
-    await sbDelete('campaigns', eid);
+  if(!eid||!confirm('Delete this activity?'))return;
+  try{
+    await sbDelete('campaigns',eid);
     db.campaigns=db.campaigns.filter(c=>c.id!==eid);
-    closeModal(); redraw(); renderCampPage(); renderImpact();
+    closeModal();redraw();renderCampPage();renderImpact();
     toast('Deleted');
-  } catch(e) {
-    toast('Delete failed — check your connection');
-    console.error(e);
-  }
-}
-
-// ─── Sync page ────────────────────────────────────────────────────────────────
-function connectMeta(){ toast('See Settings → API connection guide for Meta setup steps.'); }
-function connectGA(){ toast('See Settings → API connection guide for Google Analytics setup steps.'); }
-function handleUpload(input,badgeId,name){
-  if(!input.files.length) return;
-  document.getElementById(badgeId).textContent='Uploaded ✓';
-  document.getElementById(badgeId).className='badge badge-connected';
-  toast(name+' file received — CSV parsing coming in a future update');
-}
-
-async function saveManual(){
-  const week=document.getElementById('m-week').value;
-  if(!week){toast('Select a week date first');return;}
-  const entry={
-    id: 'w-'+week,
-    weekEnding:week,
-    igFollowers:parseInt(document.getElementById('m-ig').value)||0,
-    fbFollowers:parseInt(document.getElementById('m-fb').value)||0,
-    reach:parseInt(document.getElementById('m-reach').value)||0,
-    interactions:parseInt(document.getElementById('m-inter').value)||0,
-    registrations:parseInt(document.getElementById('m-reg').value)||0,
-    sessions:parseInt(document.getElementById('m-sess').value)||0,
-    adSpend:parseInt(document.getElementById('m-spend').value)||0,
-    tiktokViews:parseInt(document.getElementById('m-tiktok').value)||0,
-  };
-  try {
-    await saveWeeklyToSupabase(entry);
-    const ei=db.weekly.findIndex(w=>w.weekEnding===week);
-    if(ei>=0) db.weekly[ei]=entry; else db.weekly.push(entry);
-    db.weekly.sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
-    toast('Weekly data saved to database ✓');
-    redraw();
-  } catch(e) {
-    toast('Save failed — check your connection');
-    console.error(e);
-  }
+  }catch(e){toast('Delete failed');console.error(e);}
 }
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
@@ -995,26 +1022,22 @@ function saveSettings(){
 }
 function exportData(){
   const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='rainbow-games-marketing-backup.json'; a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='rainbow-games-backup.json';a.click();
   toast('Backup downloaded');
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function toast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ─── Click outside modal ──────────────────────────────────────────────────────
-document.getElementById('modal-overlay').addEventListener('click',function(e){
-  if(e.target===this) closeModal();
-});
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-document.getElementById('m-week').value=new Date().toISOString().split('T')[0];
-load().then(() => redraw());
+load().then(()=>redraw());
 </script>
 </body>
 </html>
