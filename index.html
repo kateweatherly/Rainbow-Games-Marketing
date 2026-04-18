@@ -166,9 +166,16 @@ textarea.fi{resize:vertical;min-height:60px}
 .metrics-table tr:hover td{background:var(--blue-light)}
 .metrics-table tr:last-child td{border-bottom:none}
 .edit-cell{color:var(--blue);cursor:pointer;text-decoration:underline;font-weight:700;white-space:nowrap}
+.del-cell{color:var(--red);cursor:pointer;font-weight:700;white-space:nowrap;padding-left:6px}
 .date-cell{font-weight:700;white-space:nowrap;color:var(--navy)}
 .num-cell{font-weight:600;color:var(--navy)}
 .nil-cell{color:var(--text3)}
+/* Inline edit row */
+.edit-row td{background:var(--blue-light) !important;padding:10px !important}
+.inline-date{padding:5px 8px;border:0.5px solid var(--blue);border-radius:5px;font-size:12px;font-family:inherit;color:var(--navy);background:#fff;outline:none;width:120px}
+.inline-num{padding:5px 8px;border:0.5px solid var(--border2);border-radius:5px;font-size:12px;font-family:inherit;color:var(--navy);background:#fff;outline:none;width:72px}
+.inline-num:focus,.inline-date:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,14,209,.1)}
+.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
@@ -416,7 +423,7 @@ textarea.fi{resize:vertical;min-height:60px}
         <table class="metrics-table">
           <thead>
             <tr>
-              <th>Period (end date)</th>
+              <th>Period</th>
               <th>Reg.</th>
               <th>IG followers</th>
               <th>FB followers</th>
@@ -425,7 +432,8 @@ textarea.fi{resize:vertical;min-height:60px}
               <th>Sessions</th>
               <th>Ad spend</th>
               <th>TikTok views</th>
-              <th></th>
+              <th>Edit</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody id="metrics-table-body">
@@ -629,53 +637,88 @@ function renderMetrics(){
   ].map((c,i)=>`<div class="mc" style="border-top-color:${cols[i]}"><div class="mc-label">${c.l}</div><div class="mc-val">${c.v}</div>${c.d}</div>`).join('');
 }
 
-function annotPlugin(data,camps){
-  const ctypes=aCT();
-  return{id:'annot',afterDraw(chart){
-    const{ctx,chartArea,scales}=chart;if(!chartArea)return;
-    camps.filter(c=>ctypes.includes(c.type)).forEach(c=>{
-      const cd=new Date(c.date);let ci=0,md=Infinity;
-      data.forEach((w,i)=>{const df=Math.abs(new Date(w.weekEnding)-cd);if(df<md){md=df;ci=i;}});
-      const xp=scales.x.getPixelForValue(ci);
-      if(xp<chartArea.left||xp>chartArea.right)return;
-      const col=TC[c.type]||'#888';
-      ctx.save();ctx.strokeStyle=col;ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.globalAlpha=0.7;
-      ctx.beginPath();ctx.moveTo(xp,chartArea.top);ctx.lineTo(xp,chartArea.bottom);ctx.stroke();
-      ctx.setLineDash([]);ctx.globalAlpha=1;ctx.fillStyle=col;
-      ctx.beginPath();ctx.arc(xp,chartArea.top+6,5,0,Math.PI*2);ctx.fill();
-      ctx.restore();
+// ── Daily interpolation ───────────────────────────────────────────────────────
+function buildDailySeries(rw){
+  const sorted=[...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+  if(!sorted.length)return[];
+  let startD=new Date(sorted[0].weekStart||sorted[0].weekEnding);
+  let endD=new Date(sorted[sorted.length-1].weekEnding);
+  if(rw>0){const cut=new Date();cut.setDate(cut.getDate()-rw);if(cut>startD)startD=cut;}
+  const days=[];const cur=new Date(startD);
+  while(cur<=endD){
+    const ds=cur.toISOString().split('T')[0];
+    const period=sorted.find(w=>{
+      const ws=new Date(w.weekStart||w.weekEnding),we=new Date(w.weekEnding),d=new Date(ds);
+      return d>=ws&&d<=we;
     });
-  }};
+    if(period){
+      const ws=new Date(period.weekStart||period.weekEnding),we=new Date(period.weekEnding);
+      const pd=Math.max(1,Math.round((we-ws)/86400000)+1);
+      days.push({date:ds,registrations:Math.round((period.registrations||0)/pd),reach:Math.round((period.reach||0)/pd),interactions:Math.round((period.interactions||0)/pd),sessions:Math.round((period.sessions||0)/pd),igFollowers:period.igFollowers||0,fbFollowers:period.fbFollowers||0,tiktokViews:Math.round((period.tiktokViews||0)/pd),adSpend:Math.round(((period.adSpend||0)/pd)*100)/100});
+    }
+    cur.setDate(cur.getDate()+1);
+  }
+  return days;
 }
 
 function renderMainChart(){
-  const data=fW();if(!data.length)return;
-  const camps=fC(data),metrics=aM();
-  const labels=data.map(w=>{const d=new Date(w.weekEnding);return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});});
-  const datasets=metrics.map(m=>({label:ML[m],data:norm(data.map(w=>w[m]||0)),borderColor:MC[m],backgroundColor:MC[m]+'18',borderWidth:2,tension:0.35,fill:false,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:MC[m]}));
+  const days=buildDailySeries(rangeWeeks);
+  if(!days.length)return;
+  const startD=new Date(days[0].date),endD=new Date(days[days.length-1].date);
+  const camps=db.campaigns.filter(c=>{const d=new Date(c.date);return d>=startD&&d<=endD;});
+  const metrics=aM();
+  const labels=days.map((d,i)=>{
+    const dt=new Date(d.date);
+    if(days.length<=21||(i%7===0))return dt.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});
+    return '';
+  });
+  const datasets=metrics.map(m=>({label:ML[m],data:norm(days.map(d=>d[m]||0)),borderColor:MC[m],backgroundColor:MC[m]+'15',borderWidth:1.5,tension:0.3,fill:false,pointRadius:0,pointHoverRadius:4,pointBackgroundColor:MC[m]}));
   if(charts.main)charts.main.destroy();
   const ctx=document.getElementById('main-chart').getContext('2d');
+  const campPlugin={id:'annot',afterDraw(chart){
+    const{ctx:c2,chartArea,scales}=chart;if(!chartArea)return;
+    const ctypes=aCT();
+    camps.filter(c=>ctypes.includes(c.type)).forEach(camp=>{
+      const dayIdx=days.findIndex(d=>d.date===camp.date);
+      if(dayIdx<0)return;
+      const xp=scales.x.getPixelForValue(dayIdx);
+      if(xp<chartArea.left||xp>chartArea.right)return;
+      const col=TC[camp.type]||'#888';
+      c2.save();
+      c2.strokeStyle=col;c2.lineWidth=2;c2.setLineDash([3,3]);c2.globalAlpha=0.75;
+      c2.beginPath();c2.moveTo(xp,chartArea.top+26);c2.lineTo(xp,chartArea.bottom);c2.stroke();
+      c2.setLineDash([]);c2.globalAlpha=1;c2.fillStyle=col;
+      c2.beginPath();c2.arc(xp,chartArea.top+26,4,0,Math.PI*2);c2.fill();
+      c2.font='700 10px -apple-system,sans-serif';c2.fillStyle=col;
+      const lbl=camp.name.length>18?camp.name.substring(0,17)+'…':camp.name;
+      const lw=c2.measureText(lbl).width;
+      let lx=xp+7;if(lx+lw>chartArea.right)lx=xp-lw-7;
+      c2.fillText(lbl,lx,chartArea.top+22);
+      c2.restore();
+    });
+  }};
   charts.main=new Chart(ctx,{type:'line',data:{labels,datasets},options:{
     responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{enabled:false,external(context){
       const tt=document.getElementById('main-tt');
       if(context.tooltip.opacity===0){tt.classList.remove('on');return;}
       const idx=context.tooltip.dataPoints?.[0]?.dataIndex;if(idx===undefined)return;
-      const week=data[idx];
-      let html=`<div class="tt-title">${labels[idx]}</div>`;
-      metrics.forEach(m=>{html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${ML[m]}</span><span class="tt-v">${fmt(week[m]||0)}</span></div>`;});
-      const wc=camps.filter(c=>{const cd=new Date(c.date),wd=new Date(week.weekEnding),pv=new Date(wd);pv.setDate(wd.getDate()-14);return cd>=pv&&cd<=wd;});
-      if(wc.length){html+=`<div class="tt-camp">`;wc.forEach(c=>{html+=`<div style="color:${TC[c.type]};font-weight:600">${TL[c.type]}: ${c.name}</div>`;});html+='</div>';}
+      const day=days[idx];
+      const dt=new Date(day.date).toLocaleDateString('en-NZ',{weekday:'short',day:'numeric',month:'short'});
+      let html=`<div class="tt-title">${dt}</div>`;
+      metrics.forEach(m=>{const raw=day[m]||0;if(raw)html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${ML[m]}</span><span class="tt-v">${fmt(raw)}</span></div>`;});
+      const dc=camps.filter(c=>c.date===day.date);
+      if(dc.length){html+=`<div class="tt-camp">`;dc.forEach(c=>{html+=`<div style="color:${TC[c.type]};font-weight:700">${TL[c.type]}: ${c.name}</div>`;});html+='</div>';}
       tt.innerHTML=html;
-      const wrap=document.getElementById('main-wrap');let tx=context.tooltip.caretX+14;
-      if(tx+210>wrap.offsetWidth)tx=context.tooltip.caretX-218;
+      const wrap=document.getElementById('main-wrap');
+      let tx=context.tooltip.caretX+14;if(tx+210>wrap.offsetWidth)tx=context.tooltip.caretX-218;
       tt.style.left=tx+'px';tt.style.top=Math.max(0,context.tooltip.caretY-30)+'px';tt.classList.add('on');
     }}},
     scales:{
-      x:{grid:{display:false},ticks:{font:{size:11},color:'#3a3d6b',maxTicksLimit:8}},
+      x:{grid:{display:false},ticks:{font:{size:10},color:'#3a3d6b',maxTicksLimit:16,callback:(v,i)=>labels[i]}},
       y:{min:0,max:100,ticks:{font:{size:11},color:'#3a3d6b',callback:v=>v+''},grid:{color:'rgba(11,14,90,0.05)'}}
     }
-  },plugins:[annotPlugin(data,camps)]});
+  },plugins:[campPlugin]});
   let lh=metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${MC[m]}"></span>${ML[m]}</span>`).join('');
   aCT().forEach(ct=>{const vis=camps.filter(c=>c.type===ct);if(vis.length)lh+=`<span class="leg"><span class="leg-vl" style="border-color:${TC[ct]};background:${TC[ct]}20"></span>${TL[ct]}</span>`;});
   document.getElementById('main-legend').innerHTML=lh;
@@ -739,23 +782,90 @@ function prefill(w){
 function renderMetricsTable(){
   const sorted=[...db.weekly].sort((a,b)=>new Date(b.weekEnding)-new Date(a.weekEnding));
   const tbody=document.getElementById('metrics-table-body');
-  if(!sorted.length){tbody.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px;font-style:italic">No data entered yet — fill in the form above and save</td></tr>';return;}
-  function c(v){return v?`<td class="num-cell">${typeof v==='number'&&v>=1000?fmt(v):v}</td>`:`<td class="nil-cell">—</td>`;}
+  if(!sorted.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--text3);padding:24px;font-style:italic">No data entered yet — fill in the form above and save</td></tr>';return;}
+  function c(v,raw){if(!raw)return`<td class="nil-cell">—</td>`;return`<td class="num-cell">${v}</td>`;}
   tbody.innerHTML=sorted.map(w=>`
-    <tr>
+    <tr id="row-${w.id}">
       <td class="date-cell">${w.weekStart&&w.weekStart!==w.weekEnding?fd(w.weekStart)+' – ':''} ${fd(w.weekEnding)}</td>
-      ${c(w.registrations)}${c(w.igFollowers?w.igFollowers.toLocaleString():0)}${c(w.fbFollowers?w.fbFollowers.toLocaleString():0)}
-      ${c(w.reach)}${c(w.interactions)}${c(w.sessions)}
-      ${c(w.adSpend?'$'+w.adSpend:0)}${c(w.tiktokViews)}
-      <td class="edit-cell" onclick="loadEdit('${w.weekEnding}','${w.weekStart||w.weekEnding}')">Edit</td>
+      ${c(w.registrations,w.registrations)}
+      ${c(w.igFollowers?w.igFollowers.toLocaleString():null,w.igFollowers)}
+      ${c(w.fbFollowers?w.fbFollowers.toLocaleString():null,w.fbFollowers)}
+      ${c(w.reach?fmt(w.reach):null,w.reach)}
+      ${c(w.interactions?fmt(w.interactions):null,w.interactions)}
+      ${c(w.sessions?fmt(w.sessions):null,w.sessions)}
+      ${c(w.adSpend?'$'+w.adSpend:null,w.adSpend)}
+      ${c(w.tiktokViews?fmt(w.tiktokViews):null,w.tiktokViews)}
+      <td class="edit-cell" onclick="openRowEdit('${w.id}')">Edit</td>
+      <td class="del-cell" onclick="deleteEntry('${w.id}')" title="Delete this entry">✕</td>
     </tr>`).join('');
 }
 
-function loadEdit(end,start){
-  document.getElementById('sync-end').value=end;
-  document.getElementById('sync-start').value=start;
-  updateDateDisplay();
-  document.querySelector('.sync-hero').scrollIntoView({behavior:'smooth'});
+function openRowEdit(id){
+  const w=db.weekly.find(x=>x.id===id);if(!w)return;
+  document.querySelectorAll('.edit-row').forEach(r=>r.remove());
+  const sourceRow=document.getElementById('row-'+id);if(!sourceRow)return;
+  const vals=[w.registrations,w.igFollowers,w.fbFollowers,w.reach,w.interactions,w.sessions,w.adSpend,w.tiktokViews];
+  const fields=[['Registrations','re-reg'],['IG followers','re-ig'],['FB followers','re-fb'],['Reach','re-reach'],['Interactions','re-inter'],['Sessions','re-sess'],['Ad spend ($)','re-spend'],['TikTok views','re-tiktok']];
+  const editRow=document.createElement('tr');
+  editRow.className='edit-row';editRow.id='editrow-'+id;
+  editRow.innerHTML=`<td colspan="11" style="padding:14px 12px">
+    <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Editing — ${fd(w.weekEnding)}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <div><div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:3px">Start date</div><input class="inline-date" type="date" id="re-start-${id}" value="${w.weekStart||w.weekEnding}"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:3px">End date</div><input class="inline-date" type="date" id="re-end-${id}" value="${w.weekEnding}"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      ${fields.map(([label,fid],i)=>`<div><div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:3px">${label}</div><input class="inline-num" type="number" id="${fid}-${id}" value="${vals[i]||''}" placeholder="0" min="0"></div>`).join('')}
+    </div>
+    <div class="row-actions">
+      <button class="btn btn-primary btn-sm" onclick="saveRowEdit('${id}')">Save changes</button>
+      <button class="btn btn-sm" onclick="document.getElementById('editrow-${id}').remove()">Cancel</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteEntry('${id}')">Delete entry</button>
+    </div>
+  </td>`;
+  sourceRow.after(editRow);
+  editRow.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+async function saveRowEdit(id){
+  const w=db.weekly.find(x=>x.id===id);if(!w)return;
+  const newEnd=document.getElementById('re-end-'+id).value;
+  const newStart=document.getElementById('re-start-'+id).value;
+  if(!newEnd){toast('End date is required');return;}
+  const updated={
+    ...w,
+    id:newEnd!==w.weekEnding?'w-'+newEnd:w.id,
+    weekStart:newStart||newEnd,weekEnding:newEnd,
+    registrations:parseInt(document.getElementById('re-reg-'+id).value)||0,
+    igFollowers:parseInt(document.getElementById('re-ig-'+id).value)||0,
+    fbFollowers:parseInt(document.getElementById('re-fb-'+id).value)||0,
+    reach:parseInt(document.getElementById('re-reach-'+id).value)||0,
+    interactions:parseInt(document.getElementById('re-inter-'+id).value)||0,
+    sessions:parseInt(document.getElementById('re-sess-'+id).value)||0,
+    adSpend:parseInt(document.getElementById('re-spend-'+id).value)||0,
+    tiktokViews:parseInt(document.getElementById('re-tiktok-'+id).value)||0,
+  };
+  try{
+    if(newEnd!==w.weekEnding)await sbDelete('weekly_data',w.id);
+    await sbUpsert('weekly_data',{id:updated.id,week_ending:updated.weekEnding,ig_followers:updated.igFollowers,fb_followers:updated.fbFollowers,reach:updated.reach,interactions:updated.interactions,registrations:updated.registrations,sessions:updated.sessions,ad_spend:updated.adSpend,tiktok_views:updated.tiktokViews});
+    const idx=db.weekly.findIndex(x=>x.id===id);
+    if(idx>=0)db.weekly[idx]=updated;
+    db.weekly.sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+    document.getElementById('editrow-'+id)?.remove();
+    renderMetricsTable();redraw();
+    toast('Entry updated ✓');
+  }catch(e){toast('Save failed: '+e.message);console.error(e);}
+}
+
+async function deleteEntry(id){
+  if(!confirm('Delete this data entry? This cannot be undone.'))return;
+  try{
+    await sbDelete('weekly_data',id);
+    db.weekly=db.weekly.filter(w=>w.id!==id);
+    document.getElementById('editrow-'+id)?.remove();
+    renderMetricsTable();redraw();
+    toast('Entry deleted');
+  }catch(e){toast('Delete failed');console.error(e);}
 }
 
 function renderSyncCampList(){
