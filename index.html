@@ -624,16 +624,6 @@ function setDbStatus(ok){document.getElementById('db-status-dot').style.backgrou
 let rangeWeeks=30,campFilter='all',charts={};
 function aM(){return[...document.querySelectorAll('[data-metric]')].filter(i=>i.checked).map(i=>i.dataset.metric);}
 function aCT(){return[...document.querySelectorAll('[data-ctype]')].filter(i=>i.checked).map(i=>i.dataset.ctype);}
-function fW(){
-  let d=[...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
-  if(rangeWeeks>0){const cut=new Date();cut.setDate(cut.getDate()-rangeWeeks);d=d.filter(w=>new Date(w.weekEnding)>=cut);}
-  return d;
-}
-function fC(data){
-  if(!data.length)return[];
-  const s=new Date(data[0].weekEnding),e=new Date(data[data.length-1].weekEnding);
-  return db.campaigns.filter(c=>{const d=new Date(c.date);return d>=s&&d<=e;});
-}
 function fmt(n){return n>=1000?(n/1000).toFixed(1)+'k':String(Math.round(n));}
 function fd(d){return d?new Date(d).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'2-digit'}):'—';}
 function norm(arr){const mn=Math.min(...arr),mx=Math.max(...arr);return mx===mn?arr.map(()=>50):arr.map(v=>Math.round((v-mn)/(mx-mn)*100));}
@@ -669,127 +659,106 @@ function renderMetrics(){
   ].map((c,i)=>`<div class="mc" style="border-top-color:${cols[i]}"><div class="mc-label">${c.l}</div><div class="mc-val">${c.v}</div>${c.d}</div>`).join('');
 }
 
-// ── Daily interpolation ───────────────────────────────────────────────────────
-function buildDailySeries(rw){
-  const sorted=[...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
-  if(!sorted.length){
-    // No weekly data — still build a range covering campaign dates
-    const ctypes=aCT();
-    const camps=db.campaigns.filter(c=>ctypes.includes(c.type));
-    if(!camps.length)return[];
-    const dates=camps.map(c=>new Date(c.date)).sort((a,b)=>a-b);
-    const startD=dates[0],endD=dates[dates.length-1];
-    const days=[];const cur=new Date(startD);
-    while(cur<=endD){days.push({date:cur.toISOString().split('T')[0],registrations:0,reach:0,interactions:0,sessions:0,igFollowers:0,fbFollowers:0,tiktokViews:0,adSpend:0});cur.setDate(cur.getDate()+1);}
-    return days;
-  }
-  let startD=new Date(sorted[0].weekStart||sorted[0].weekEnding);
-  let endD=new Date(sorted[sorted.length-1].weekEnding);
-  if(rw>0){const cut=new Date();cut.setDate(cut.getDate()-rw);if(cut>startD)startD=cut;}
-  // Extend to include campaign dates within or just beyond the window
-  const ctypes=aCT();
-  db.campaigns.filter(c=>ctypes.includes(c.type)).forEach(c=>{
-    const cd=new Date(c.date);
-    if(cd>=startD&&cd>endD)endD=new Date(cd);
-  });
-  const days=[];const cur=new Date(startD);
-  while(cur<=endD){
-    const ds=cur.toISOString().split('T')[0];
-    const period=sorted.find(w=>{
-      const ws=new Date(w.weekStart||w.weekEnding),we=new Date(w.weekEnding),d=new Date(ds);
-      return d>=ws&&d<=we;
-    });
-    if(period){
-      const ws=new Date(period.weekStart||period.weekEnding),we=new Date(period.weekEnding);
-      const pd=Math.max(1,Math.round((we-ws)/86400000)+1);
-      days.push({date:ds,registrations:Math.round((period.registrations||0)/pd),reach:Math.round((period.reach||0)/pd),interactions:Math.round((period.interactions||0)/pd),sessions:Math.round((period.sessions||0)/pd),igFollowers:period.igFollowers||0,fbFollowers:period.fbFollowers||0,tiktokViews:Math.round((period.tiktokViews||0)/pd),adSpend:Math.round(((period.adSpend||0)/pd)*100)/100});
-    } else {
-      // Gap day — zero values but included so campaign markers can land here
-      days.push({date:ds,registrations:0,reach:0,interactions:0,sessions:0,igFollowers:0,fbFollowers:0,tiktokViews:0,adSpend:0});
-    }
-    cur.setDate(cur.getDate()+1);
-  }
-  return days;
+// ── Chart data helpers ────────────────────────────────────────────────────────
+// Returns filtered, sorted weekly periods for the selected range
+function fW(){
+  let d=[...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
+  if(rangeWeeks>0){const cut=new Date();cut.setDate(cut.getDate()-rangeWeeks);d=d.filter(w=>new Date(w.weekEnding)>=cut);}
+  return d;
+}
+function fC(data){
+  if(!data.length)return[];
+  const s=new Date(data[0].weekEnding),e=new Date(data[data.length-1].weekEnding);
+  // Also include campaigns up to 7 days beyond last period so recent ones show
+  const eExt=new Date(e);eExt.setDate(e.getDate()+7);
+  return db.campaigns.filter(c=>{const d=new Date(c.date);return d>=new Date(data[0].weekStart||data[0].weekEnding)&&d<=eExt;});
 }
 
 function renderMainChart(){
-  const days=buildDailySeries(rangeWeeks);
-  if(!days.length)return;
-  const startD=new Date(days[0].date),endD=new Date(days[days.length-1].date);
-  const camps=db.campaigns.filter(c=>{const d=new Date(c.date);return d>=startD&&d<=endD;});
+  const data=fW();
+  if(!data.length){
+    if(charts.main){charts.main.destroy();charts.main=null;}
+    return;
+  }
   const metrics=aM();
+  const camps=fC(data);
+  const ctypes=aCT();
+  const visibleCamps=camps.filter(c=>ctypes.includes(c.type));
 
-  const labels=days.map((d,i)=>{
-    const dt=new Date(d.date);
-    if(days.length<=21||(i%7===0))return dt.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});
-    return '';
+  // ── Labels: use the period end date as the x label ────────────────────────
+  // Each period is ONE data point — no daily splitting
+  const labels=data.map(w=>{
+    const d=new Date(w.weekEnding);
+    return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});
   });
 
-  const datasets=metrics.map(m=>({
+  // ── Normalise across all active metrics together ───────────────────────────
+  // Skip metrics that are all-zero (avoids the flat 50% line)
+  const activeNonZero=metrics.filter(m=>data.some(w=>(w[m]||0)>0));
+
+  const datasets=activeNonZero.map(m=>({
     label:ML[m],
-    data:norm(days.map(d=>d[m]||0)),
+    data:norm(data.map(w=>w[m]||0)),
     borderColor:MC[m],
-    backgroundColor:MC[m]+'12',
+    backgroundColor:MC[m]+'14',
     borderWidth:2,
-    tension:0.35,
+    tension:0.3,
     fill:false,
-    pointRadius:0,
-    pointHoverRadius:5,
+    pointRadius:3,
+    pointHoverRadius:6,
     pointBackgroundColor:MC[m],
+    pointBorderColor:'#fff',
+    pointBorderWidth:1.5,
     pointHoverBorderColor:'#fff',
     pointHoverBorderWidth:2,
+    spanGaps:true,
   }));
 
   if(charts.main)charts.main.destroy();
   const ctx=document.getElementById('main-chart').getContext('2d');
 
-  // ── Campaign marker plugin ────────────────────────────────────────────────────
-  // Stagger labels vertically when campaigns are close together to avoid overlap
-  const campPlugin={id:'annot',afterDraw(chart){
-    const{ctx:c2,chartArea,scales}=chart;if(!chartArea)return;
-    const ctypes=aCT();
-    const visible=camps.filter(c=>ctypes.includes(c.type));
+  // ── Campaign marker plugin ────────────────────────────────────────────────
+  // Interpolates each campaign's position between period data points
+  // based on the fraction of time elapsed within the surrounding periods
+  const campPlugin={id:'campMarkers',afterDraw(chart){
+    const{ctx:c2,chartArea,scales}=chart;
+    if(!chartArea||!visibleCamps.length)return;
 
-    // Resolve x positions first so we can detect overlaps
-    const positioned=visible.map(camp=>{
-      let dayIdx=days.findIndex(d=>d.date===camp.date);
-      if(dayIdx<0){
-        const cd=new Date(camp.date).getTime();
-        let minDiff=Infinity;
-        days.forEach((d,i)=>{const diff=Math.abs(new Date(d.date).getTime()-cd);if(diff<minDiff){minDiff=diff;dayIdx=i;}});
+    // Build a time→pixel mapping by interpolating between period end dates
+    const periodTimes=data.map(w=>new Date(w.weekEnding).getTime());
+    const periodPixels=data.map((_,i)=>scales.x.getPixelForValue(i));
+
+    function dateToPixel(dateStr){
+      const t=new Date(dateStr).getTime();
+      if(t<=periodTimes[0])return periodPixels[0];
+      if(t>=periodTimes[periodTimes.length-1])return periodPixels[periodPixels.length-1];
+      // Find surrounding periods and interpolate
+      for(let i=0;i<periodTimes.length-1;i++){
+        if(t>=periodTimes[i]&&t<=periodTimes[i+1]){
+          const frac=(t-periodTimes[i])/(periodTimes[i+1]-periodTimes[i]);
+          return periodPixels[i]+frac*(periodPixels[i+1]-periodPixels[i]);
+        }
       }
-      const xp=dayIdx>=0?scales.x.getPixelForValue(dayIdx):-1;
-      return{camp,dayIdx,xp,col:TC[camp.type]||'#888'};
-    }).filter(p=>p.xp>=chartArea.left&&p.xp<=chartArea.right);
+      return periodPixels[periodPixels.length-1];
+    }
 
-    // Assign stagger rows: group items whose x positions are within 80px of each other
-    // Each group gets labels at alternating vertical offsets
-    const LABEL_GAP=80; // px — if two markers are closer than this, stagger
-    const used=[]; // tracks {xp, row} of placed labels
-    positioned.forEach(p=>{
-      // Find what row is free near this x position
-      const nearby=used.filter(u=>Math.abs(u.xp-p.xp)<LABEL_GAP);
-      const takenRows=new Set(nearby.map(u=>u.row));
-      let row=0;
-      while(takenRows.has(row))row++;
-      p.row=row;
-      used.push({xp:p.xp,row});
-    });
+    // Resolve pixel positions, filter to chart area
+    const positioned=visibleCamps.map(camp=>({
+      camp,
+      xp:dateToPixel(camp.date),
+      col:TC[camp.type]||'#888',
+    })).filter(p=>p.xp>=chartArea.left&&p.xp<=chartArea.right);
 
-    // Draw markers and labels
-    positioned.forEach(({camp,xp,col,row})=>{
-      const baseY=chartArea.top+14; // top of label area
-      const rowH=16; // px per row
-      const labelY=baseY+row*rowH;
-      const lineStartY=labelY+6;
-
+    // Draw each marker — dashed line + coloured dot only (no text labels)
+    positioned.forEach(({xp,col})=>{
       c2.save();
-      // Dashed vertical line from below label to bottom of chart
-      c2.strokeStyle=col;c2.lineWidth=1.5;c2.setLineDash([3,3]);c2.globalAlpha=0.6;
-      c2.beginPath();c2.moveTo(xp,lineStartY);c2.lineTo(xp,chartArea.bottom);c2.stroke();
-      // Dot at top of line
+      c2.strokeStyle=col;c2.lineWidth=1.5;c2.setLineDash([4,3]);c2.globalAlpha=0.55;
+      c2.beginPath();c2.moveTo(xp,chartArea.top+8);c2.lineTo(xp,chartArea.bottom);c2.stroke();
       c2.setLineDash([]);c2.globalAlpha=1;c2.fillStyle=col;
-      c2.beginPath();c2.arc(xp,lineStartY,3.5,0,Math.PI*2);c2.fill();
+      c2.beginPath();c2.arc(xp,chartArea.top+8,4,0,Math.PI*2);c2.fill();
+      // White inner ring for visibility
+      c2.strokeStyle='#fff';c2.lineWidth=1;
+      c2.beginPath();c2.arc(xp,chartArea.top+8,4,0,Math.PI*2);c2.stroke();
       c2.restore();
     });
   }};
@@ -801,37 +770,62 @@ function renderMainChart(){
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{display:false},
-        tooltip:{enabled:false,external(context){
-          const tt=document.getElementById('main-tt');
-          if(context.tooltip.opacity===0){tt.classList.remove('on');return;}
-          const idx=context.tooltip.dataPoints?.[0]?.dataIndex;if(idx===undefined)return;
-          const day=days[idx];
-          const dt=new Date(day.date).toLocaleDateString('en-NZ',{weekday:'short',day:'numeric',month:'short'});
-          let html=`<div class="tt-title">${dt}</div>`;
-          metrics.forEach(m=>{const raw=day[m]||0;if(raw)html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${ML[m]}</span><span class="tt-v">${fmt(raw)}</span></div>`;});
-          const dc=camps.filter(c=>c.date===day.date);
-          if(dc.length){html+=`<div class="tt-camp">`;dc.forEach(c=>{html+=`<div style="color:${TC[c.type]};font-weight:700">${TL[c.type]}: ${c.name}</div>`;});html+='</div>';}
-          tt.innerHTML=html;
-          const wrap=document.getElementById('main-wrap');
-          let tx=context.tooltip.caretX+14;if(tx+210>wrap.offsetWidth)tx=context.tooltip.caretX-218;
-          tt.style.left=tx+'px';tt.style.top=Math.max(0,context.tooltip.caretY-30)+'px';
-          tt.classList.add('on');
-        }}
+        tooltip:{
+          enabled:false,
+          external(context){
+            const tt=document.getElementById('main-tt');
+            if(context.tooltip.opacity===0){tt.classList.remove('on');return;}
+            const idx=context.tooltip.dataPoints?.[0]?.dataIndex;
+            if(idx===undefined){tt.classList.remove('on');return;}
+            const w=data[idx];
+            const label=labels[idx];
+            // Show period range if start differs from end
+            const startLabel=w.weekStart&&w.weekStart!==w.weekEnding
+              ?new Date(w.weekStart).toLocaleDateString('en-NZ',{day:'numeric',month:'short'})+' – '
+              :'';
+            let html=`<div class="tt-title">${startLabel}${label}</div>`;
+            activeNonZero.forEach(m=>{
+              const raw=w[m]||0;
+              html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${ML[m]}</span><span class="tt-v">${raw>=1000?fmt(raw):raw}</span></div>`;
+            });
+            // Show any campaigns near this period
+            const pe=new Date(w.weekEnding),ps=new Date(w.weekStart||w.weekEnding);
+            const nearbyCamps=visibleCamps.filter(c=>{const cd=new Date(c.date);return cd>=ps&&cd<=pe;});
+            if(nearbyCamps.length){
+              html+=`<div class="tt-camp">`;
+              nearbyCamps.forEach(c=>{html+=`<div style="color:${TC[c.type]};font-weight:700">${TL[c.type]}: ${c.name}</div>`;});
+              html+='</div>';
+            }
+            tt.innerHTML=html;
+            const wrap=document.getElementById('main-wrap');
+            let tx=context.tooltip.caretX+14;
+            if(tx+220>wrap.offsetWidth)tx=context.tooltip.caretX-228;
+            tt.style.left=Math.max(0,tx)+'px';
+            tt.style.top=Math.max(0,context.tooltip.caretY-30)+'px';
+            tt.classList.add('on');
+          }
+        }
       },
       scales:{
-        x:{grid:{display:false},ticks:{font:{size:10},color:'#3a3d6b',maxTicksLimit:16,callback:(v,i)=>labels[i]}},
-        y:{min:0,max:100,ticks:{font:{size:11},color:'#3a3d6b',callback:v=>v+''},grid:{color:'rgba(11,14,90,0.05)'}}
+        x:{
+          grid:{display:false},
+          ticks:{font:{size:10},color:'#3a3d6b',maxTicksLimit:12}
+        },
+        y:{
+          min:0,max:100,
+          ticks:{font:{size:11},color:'#3a3d6b',callback:v=>v+''},
+          grid:{color:'rgba(11,14,90,0.05)'}
+        }
       }
     },
     plugins:[campPlugin]
   });
 
-  let lh=metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${MC[m]}"></span>${ML[m]}</span>`).join('');
-  aCT().forEach(ct=>{
-    const vis=camps.filter(c=>c.type===ct);
-    if(vis.length)lh+=`<span class="leg"><span class="leg-vl" style="border-color:${TC[ct]};background:${TC[ct]}20"></span>${TL[ct]}</span>`;
-  });
-  document.getElementById('main-legend').innerHTML=lh;
+  // Legend: metrics + campaign type indicators
+  let lh=activeNonZero.map(m=>`<span class="leg"><span class="leg-sq" style="background:${MC[m]}"></span>${ML[m]}</span>`).join('');
+  const shownTypes=[...new Set(visibleCamps.map(c=>c.type))];
+  shownTypes.forEach(ct=>{lh+=`<span class="leg"><span class="leg-vl" style="border-color:${TC[ct]};background:${TC[ct]}20"></span>${TL[ct]}</span>`;});
+  document.getElementById('main-legend').innerHTML=lh||'<span style="font-size:11px;color:var(--text3)">No metrics selected</span>';
 }
 
 function renderSec(){
