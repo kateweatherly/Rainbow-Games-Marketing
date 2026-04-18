@@ -267,7 +267,7 @@ textarea.fi{resize:vertical;min-height:60px}
       <div class="card-hd">
         <div>
           <div class="card-title">All sources — unified timeline</div>
-          <div class="card-sub">Cumulative growth · Gaussian-smoothed · ↗ = cumulative metric · campaign markers show exact post/event dates</div>
+          <div class="card-sub">Normalised 0–100 · campaign markers show exact post/event dates · hover for details</div>
         </div>
         <div class="range-btns">
           <button class="rb active" onclick="setRange(30,this)">30d</button>
@@ -719,56 +719,6 @@ function renderMainChart(){
   const camps=db.campaigns.filter(c=>{const d=new Date(c.date);return d>=startD&&d<=endD;});
   const metrics=aM();
 
-  // ── Cumulative series ───────────────────────────────────────────────────────
-  // Some metrics accumulate (registrations, reach, sessions, tiktokViews, interactions)
-  // Others are point-in-time levels (igFollowers, fbFollowers)
-  const cumulativeMetrics=new Set(['registrations','reach','sessions','tiktokViews','interactions']);
-
-  function buildCumulative(m){
-    const raw=days.map(d=>d[m]||0);
-    if(!cumulativeMetrics.has(m)) return raw; // levels stay as-is
-    // Running total — skip zero-gap days by carrying forward last value
-    let sum=0;
-    return raw.map((v,i)=>{
-      if(v>0)sum+=v;
-      // For gap days (all zeros), carry sum forward unchanged
-      return sum;
-    });
-  }
-
-  // ── Gaussian smoothing (sigma ~5 days) ──────────────────────────────────────
-  function gaussianSmooth(arr,sigma=5){
-    const r=Math.ceil(sigma*3);
-    const weights=[];
-    for(let i=-r;i<=r;i++)weights.push(Math.exp(-(i*i)/(2*sigma*sigma)));
-    const wsum=weights.reduce((a,b)=>a+b,0);
-    return arr.map((_,i)=>{
-      let val=0,ws=0;
-      weights.forEach((w,j)=>{
-        const idx=i+(j-r);
-        if(idx>=0&&idx<arr.length){val+=arr[idx]*w;ws+=w;}
-      });
-      return Math.round(val/ws*10)/10;
-    });
-  }
-
-  const rawSeries={};
-  const smoothSeries={};
-  metrics.forEach(m=>{
-    rawSeries[m]=buildCumulative(m);
-    smoothSeries[m]=gaussianSmooth(rawSeries[m]);
-  });
-
-  // ── Normalise each metric independently for the unified view ─────────────────
-  function normArr(arr){
-    const nonZero=arr.filter(v=>v>0);
-    if(!nonZero.length)return arr.map(()=>0);
-    const mn=Math.min(...nonZero)*0.9; // start slightly below minimum for visual room
-    const mx=Math.max(...arr);
-    if(mx<=mn)return arr.map(()=>50);
-    return arr.map(v=>Math.round((v-mn)/(mx-mn)*92+4)); // map to 4–96 range
-  }
-
   const labels=days.map((d,i)=>{
     const dt=new Date(d.date);
     if(days.length<=21||(i%7===0))return dt.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});
@@ -777,12 +727,11 @@ function renderMainChart(){
 
   const datasets=metrics.map(m=>({
     label:ML[m],
-    data:normArr(smoothSeries[m]),
+    data:norm(days.map(d=>d[m]||0)),
     borderColor:MC[m],
     backgroundColor:MC[m]+'12',
     borderWidth:2,
-    tension:0.4,
-    cubicInterpolationMode:'monotone',
+    tension:0.35,
     fill:false,
     pointRadius:0,
     pointHoverRadius:5,
@@ -795,33 +744,52 @@ function renderMainChart(){
   const ctx=document.getElementById('main-chart').getContext('2d');
 
   // ── Campaign marker plugin ────────────────────────────────────────────────────
+  // Stagger labels vertically when campaigns are close together to avoid overlap
   const campPlugin={id:'annot',afterDraw(chart){
     const{ctx:c2,chartArea,scales}=chart;if(!chartArea)return;
     const ctypes=aCT();
-    camps.filter(c=>ctypes.includes(c.type)).forEach(camp=>{
+    const visible=camps.filter(c=>ctypes.includes(c.type));
+
+    // Resolve x positions first so we can detect overlaps
+    const positioned=visible.map(camp=>{
       let dayIdx=days.findIndex(d=>d.date===camp.date);
       if(dayIdx<0){
         const cd=new Date(camp.date).getTime();
         let minDiff=Infinity;
         days.forEach((d,i)=>{const diff=Math.abs(new Date(d.date).getTime()-cd);if(diff<minDiff){minDiff=diff;dayIdx=i;}});
       }
-      if(dayIdx<0)return;
-      const xp=scales.x.getPixelForValue(dayIdx);
-      if(xp<chartArea.left||xp>chartArea.right)return;
-      const col=TC[camp.type]||'#888';
+      const xp=dayIdx>=0?scales.x.getPixelForValue(dayIdx):-1;
+      return{camp,dayIdx,xp,col:TC[camp.type]||'#888'};
+    }).filter(p=>p.xp>=chartArea.left&&p.xp<=chartArea.right);
+
+    // Assign stagger rows: group items whose x positions are within 80px of each other
+    // Each group gets labels at alternating vertical offsets
+    const LABEL_GAP=80; // px — if two markers are closer than this, stagger
+    const used=[]; // tracks {xp, row} of placed labels
+    positioned.forEach(p=>{
+      // Find what row is free near this x position
+      const nearby=used.filter(u=>Math.abs(u.xp-p.xp)<LABEL_GAP);
+      const takenRows=new Set(nearby.map(u=>u.row));
+      let row=0;
+      while(takenRows.has(row))row++;
+      p.row=row;
+      used.push({xp:p.xp,row});
+    });
+
+    // Draw markers and labels
+    positioned.forEach(({camp,xp,col,row})=>{
+      const baseY=chartArea.top+14; // top of label area
+      const rowH=16; // px per row
+      const labelY=baseY+row*rowH;
+      const lineStartY=labelY+6;
+
       c2.save();
-      // Dashed vertical line
-      c2.strokeStyle=col;c2.lineWidth=1.5;c2.setLineDash([4,3]);c2.globalAlpha=0.6;
-      c2.beginPath();c2.moveTo(xp,chartArea.top+30);c2.lineTo(xp,chartArea.bottom);c2.stroke();
-      // Dot
+      // Dashed vertical line from below label to bottom of chart
+      c2.strokeStyle=col;c2.lineWidth=1.5;c2.setLineDash([3,3]);c2.globalAlpha=0.6;
+      c2.beginPath();c2.moveTo(xp,lineStartY);c2.lineTo(xp,chartArea.bottom);c2.stroke();
+      // Dot at top of line
       c2.setLineDash([]);c2.globalAlpha=1;c2.fillStyle=col;
-      c2.beginPath();c2.arc(xp,chartArea.top+30,4,0,Math.PI*2);c2.fill();
-      // Label
-      c2.font='600 10px -apple-system,sans-serif';c2.fillStyle=col;
-      const lbl=camp.name.length>20?camp.name.substring(0,19)+'…':camp.name;
-      const lw=c2.measureText(lbl).width;
-      let lx=xp+7;if(lx+lw>chartArea.right)lx=xp-lw-7;
-      c2.fillText(lbl,lx,chartArea.top+26);
+      c2.beginPath();c2.arc(xp,lineStartY,3.5,0,Math.PI*2);c2.fill();
       c2.restore();
     });
   }};
@@ -840,13 +808,7 @@ function renderMainChart(){
           const day=days[idx];
           const dt=new Date(day.date).toLocaleDateString('en-NZ',{weekday:'short',day:'numeric',month:'short'});
           let html=`<div class="tt-title">${dt}</div>`;
-          metrics.forEach(m=>{
-            const val=smoothSeries[m][idx];
-            if(val>0){
-              const label=cumulativeMetrics.has(m)?ML[m]+' (cumul.)':ML[m];
-              html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${label}</span><span class="tt-v">${fmt(Math.round(val))}</span></div>`;
-            }
-          });
+          metrics.forEach(m=>{const raw=day[m]||0;if(raw)html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${ML[m]}</span><span class="tt-v">${fmt(raw)}</span></div>`;});
           const dc=camps.filter(c=>c.date===day.date);
           if(dc.length){html+=`<div class="tt-camp">`;dc.forEach(c=>{html+=`<div style="color:${TC[c.type]};font-weight:700">${TL[c.type]}: ${c.name}</div>`;});html+='</div>';}
           tt.innerHTML=html;
@@ -858,13 +820,13 @@ function renderMainChart(){
       },
       scales:{
         x:{grid:{display:false},ticks:{font:{size:10},color:'#3a3d6b',maxTicksLimit:16,callback:(v,i)=>labels[i]}},
-        y:{min:0,max:100,display:false,grid:{color:'rgba(11,14,90,0.03)'}}
+        y:{min:0,max:100,ticks:{font:{size:11},color:'#3a3d6b',callback:v=>v+''},grid:{color:'rgba(11,14,90,0.05)'}}
       }
     },
     plugins:[campPlugin]
   });
 
-  let lh=metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${MC[m]}"></span>${ML[m]}${cumulativeMetrics.has(m)?' ↗':''}</span>`).join('');
+  let lh=metrics.map(m=>`<span class="leg"><span class="leg-sq" style="background:${MC[m]}"></span>${ML[m]}</span>`).join('');
   aCT().forEach(ct=>{
     const vis=camps.filter(c=>c.type===ct);
     if(vis.length)lh+=`<span class="leg"><span class="leg-vl" style="border-color:${TC[ct]};background:${TC[ct]}20"></span>${TL[ct]}</span>`;
