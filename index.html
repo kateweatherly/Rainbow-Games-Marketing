@@ -242,10 +242,10 @@ textarea.fi{resize:vertical;min-height:60px}
   <div class="sb-section">Metrics</div>
   <label class="toggle-row"><input type="checkbox" checked data-metric="registrations" onchange="redraw()"><span class="t-swatch" style="background:#FF0099"></span><span class="t-label">Registrations</span></label>
   <label class="toggle-row"><input type="checkbox" checked data-metric="reach" onchange="redraw()"><span class="t-swatch" style="background:#000ED1"></span><span class="t-label">Social reach</span></label>
-  <label class="toggle-row"><input type="checkbox" data-metric="interactions" onchange="redraw()"><span class="t-swatch" style="background:#5E00D1"></span><span class="t-label">Interactions</span></label>
-  <label class="toggle-row"><input type="checkbox" checked data-metric="sessions" onchange="redraw()"><span class="t-swatch" style="background:#0099FF"></span><span class="t-label">Website sessions</span></label>
-  <label class="toggle-row"><input type="checkbox" data-metric="igFollowers" onchange="redraw()"><span class="t-swatch" style="background:#FF0099"></span><span class="t-label">IG followers</span></label>
-  <label class="toggle-row"><input type="checkbox" data-metric="tiktokViews" onchange="redraw()"><span class="t-swatch" style="background:#5E00D1"></span><span class="t-label">TikTok views</span></label>
+  <label class="toggle-row"><input type="checkbox" data-metric="interactions" onchange="redraw()"><span class="t-swatch" style="background:#00B97A"></span><span class="t-label">Interactions</span></label>
+  <label class="toggle-row"><input type="checkbox" checked data-metric="sessions" onchange="redraw()"><span class="t-swatch" style="background:#FF6B00"></span><span class="t-label">Website sessions</span></label>
+  <label class="toggle-row"><input type="checkbox" data-metric="igFollowers" onchange="redraw()"><span class="t-swatch" style="background:#9B00E8"></span><span class="t-label">IG followers</span></label>
+  <label class="toggle-row"><input type="checkbox" data-metric="tiktokViews" onchange="redraw()"><span class="t-swatch" style="background:#00C2D4"></span><span class="t-label">TikTok views</span></label>
   <div class="sb-divider"></div>
   <div class="sb-section">Campaigns</div>
   <label class="dot-row"><input type="checkbox" checked data-ctype="social_post" onchange="redraw()"><span class="t-dot" style="background:#000ED1"></span><span class="d-label">Social post</span></label>
@@ -594,7 +594,14 @@ async function sbDelete(t,id){const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}?
 
 const TC={social_post:'#000ED1',event:'#FF0099',ad_campaign:'#5E00D1',email:'#0099FF',other:'#C2FF00'};
 const TL={social_post:'Social post',event:'Event',ad_campaign:'Ad campaign',email:'Email',other:'Other'};
-const MC={registrations:'#FF0099',reach:'#000ED1',interactions:'#5E00D1',sessions:'#0099FF',igFollowers:'#FF0099',tiktokViews:'#5E00D1'};
+const MC={
+  registrations:'#FF0099',   // hot pink  — stands out as primary KPI
+  reach:'#000ED1',           // brand blue — second most important
+  interactions:'#00B97A',    // teal green — clearly distinct from blue/pink
+  sessions:'#FF6B00',        // vivid orange — warm contrast to cool tones
+  igFollowers:'#9B00E8',     // violet — distinct from brand blue/purple
+  tiktokViews:'#00C2D4',     // cyan — distinct from all others
+};
 const ML={registrations:'Registrations',reach:'Reach',interactions:'Interactions',sessions:'Sessions',igFollowers:'IG followers',tiktokViews:'TikTok views'};
 
 let db={campaigns:[],weekly:[],settings:{org:'Rainbow Games Tāmaki Makaurau',currency:'NZD'}};
