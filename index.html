@@ -192,7 +192,39 @@ textarea.fi{resize:vertical;min-height:60px}
 <div class="shell">
 <div class="topbar">
   <div class="logo">
-    <span class="logo-flag"></span>
+    <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;border-radius:50%">
+      <defs>
+        <radialGradient id="rg-grad" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stop-color="#FFFF00"/>
+          <stop offset="25%" stop-color="#FF0099"/>
+          <stop offset="55%" stop-color="#5E00D1"/>
+          <stop offset="85%" stop-color="#0099FF"/>
+          <stop offset="100%" stop-color="#0055CC"/>
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="50" r="50" fill="url(#rg-grad)"/>
+      <!-- Left figure head -->
+      <circle cx="30" cy="25" r="9" fill="none" stroke="white" stroke-width="4"/>
+      <circle cx="30" cy="25" r="3" fill="#FF0099"/>
+      <!-- Left figure body arches -->
+      <path d="M18 85 Q18 55 30 55 Q42 55 42 85" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M21 85 Q21 57 30 57 Q39 57 39 85" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M24 85 Q24 59 30 59 Q36 59 36 85" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Centre figure head (larger, taller) -->
+      <circle cx="50" cy="20" r="11" fill="none" stroke="white" stroke-width="4.5"/>
+      <circle cx="50" cy="20" r="3.5" fill="rgba(100,80,20,0.6)"/>
+      <!-- Centre figure body arches -->
+      <path d="M36 85 Q36 50 50 50 Q64 50 64 85" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+      <path d="M40 85 Q40 53 50 53 Q60 53 60 85" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M44 85 Q44 56 50 56 Q56 56 56 85" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Right figure head -->
+      <circle cx="72" cy="32" r="9" fill="none" stroke="white" stroke-width="4"/>
+      <circle cx="72" cy="32" r="3" fill="#0099FF"/>
+      <!-- Right figure body - partial/turned arches -->
+      <path d="M62 85 Q62 60 72 58 Q80 56 84 68 Q88 78 82 85" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M65 83 Q65 61 73 60 Q79 59 82 69" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M68 80 Q68 63 74 62" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
     Rainbow Games
     <span class="logo-sub">— Marketing Intelligence</span>
   </div>
@@ -640,10 +672,26 @@ function renderMetrics(){
 // ── Daily interpolation ───────────────────────────────────────────────────────
 function buildDailySeries(rw){
   const sorted=[...db.weekly].sort((a,b)=>new Date(a.weekEnding)-new Date(b.weekEnding));
-  if(!sorted.length)return[];
+  if(!sorted.length){
+    // No weekly data — still build a range covering campaign dates
+    const ctypes=aCT();
+    const camps=db.campaigns.filter(c=>ctypes.includes(c.type));
+    if(!camps.length)return[];
+    const dates=camps.map(c=>new Date(c.date)).sort((a,b)=>a-b);
+    const startD=dates[0],endD=dates[dates.length-1];
+    const days=[];const cur=new Date(startD);
+    while(cur<=endD){days.push({date:cur.toISOString().split('T')[0],registrations:0,reach:0,interactions:0,sessions:0,igFollowers:0,fbFollowers:0,tiktokViews:0,adSpend:0});cur.setDate(cur.getDate()+1);}
+    return days;
+  }
   let startD=new Date(sorted[0].weekStart||sorted[0].weekEnding);
   let endD=new Date(sorted[sorted.length-1].weekEnding);
   if(rw>0){const cut=new Date();cut.setDate(cut.getDate()-rw);if(cut>startD)startD=cut;}
+  // Extend to include campaign dates within or just beyond the window
+  const ctypes=aCT();
+  db.campaigns.filter(c=>ctypes.includes(c.type)).forEach(c=>{
+    const cd=new Date(c.date);
+    if(cd>=startD&&cd>endD)endD=new Date(cd);
+  });
   const days=[];const cur=new Date(startD);
   while(cur<=endD){
     const ds=cur.toISOString().split('T')[0];
@@ -655,6 +703,9 @@ function buildDailySeries(rw){
       const ws=new Date(period.weekStart||period.weekEnding),we=new Date(period.weekEnding);
       const pd=Math.max(1,Math.round((we-ws)/86400000)+1);
       days.push({date:ds,registrations:Math.round((period.registrations||0)/pd),reach:Math.round((period.reach||0)/pd),interactions:Math.round((period.interactions||0)/pd),sessions:Math.round((period.sessions||0)/pd),igFollowers:period.igFollowers||0,fbFollowers:period.fbFollowers||0,tiktokViews:Math.round((period.tiktokViews||0)/pd),adSpend:Math.round(((period.adSpend||0)/pd)*100)/100});
+    } else {
+      // Gap day — zero values but included so campaign markers can land here
+      days.push({date:ds,registrations:0,reach:0,interactions:0,sessions:0,igFollowers:0,fbFollowers:0,tiktokViews:0,adSpend:0});
     }
     cur.setDate(cur.getDate()+1);
   }
@@ -679,21 +730,28 @@ function renderMainChart(){
     const{ctx:c2,chartArea,scales}=chart;if(!chartArea)return;
     const ctypes=aCT();
     camps.filter(c=>ctypes.includes(c.type)).forEach(camp=>{
-      const dayIdx=days.findIndex(d=>d.date===camp.date);
+      // Exact match first, then nearest day fallback
+      let dayIdx=days.findIndex(d=>d.date===camp.date);
+      if(dayIdx<0){
+        // Find nearest day in the series
+        const cd=new Date(camp.date).getTime();
+        let minDiff=Infinity;
+        days.forEach((d,i)=>{const diff=Math.abs(new Date(d.date).getTime()-cd);if(diff<minDiff){minDiff=diff;dayIdx=i;}});
+      }
       if(dayIdx<0)return;
       const xp=scales.x.getPixelForValue(dayIdx);
       if(xp<chartArea.left||xp>chartArea.right)return;
       const col=TC[camp.type]||'#888';
       c2.save();
       c2.strokeStyle=col;c2.lineWidth=2;c2.setLineDash([3,3]);c2.globalAlpha=0.75;
-      c2.beginPath();c2.moveTo(xp,chartArea.top+26);c2.lineTo(xp,chartArea.bottom);c2.stroke();
+      c2.beginPath();c2.moveTo(xp,chartArea.top+28);c2.lineTo(xp,chartArea.bottom);c2.stroke();
       c2.setLineDash([]);c2.globalAlpha=1;c2.fillStyle=col;
-      c2.beginPath();c2.arc(xp,chartArea.top+26,4,0,Math.PI*2);c2.fill();
+      c2.beginPath();c2.arc(xp,chartArea.top+28,4,0,Math.PI*2);c2.fill();
       c2.font='700 10px -apple-system,sans-serif';c2.fillStyle=col;
-      const lbl=camp.name.length>18?camp.name.substring(0,17)+'…':camp.name;
+      const lbl=camp.name.length>20?camp.name.substring(0,19)+'…':camp.name;
       const lw=c2.measureText(lbl).width;
       let lx=xp+7;if(lx+lw>chartArea.right)lx=xp-lw-7;
-      c2.fillText(lbl,lx,chartArea.top+22);
+      c2.fillText(lbl,lx,chartArea.top+24);
       c2.restore();
     });
   }};
