@@ -67,7 +67,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .rb.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .rb:hover:not(.active){background:var(--bg3);color:var(--text);border-color:var(--border2)}
 .cw{position:relative;width:100%}
-.cw-main{height:280px}.cw-sm{height:168px}
+.cw-main{height:380px}.cw-sm{height:168px}
 .leg-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
 .leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
@@ -267,7 +267,7 @@ textarea.fi{resize:vertical;min-height:60px}
       <div class="card-hd">
         <div>
           <div class="card-title">All sources — unified timeline</div>
-          <div class="card-sub">Normalised 0–100 · campaign markers show exact post/event dates · hover for details</div>
+          <div class="card-sub">Each metric scaled independently 0–100 so growth within each is visible · campaign markers show exact post/event dates · hover for real values</div>
         </div>
         <div class="range-btns">
           <button class="rb active" onclick="setRange(30,this)">30d</button>
@@ -699,23 +699,34 @@ function renderMainChart(){
     return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});
   });
 
-  // ── Normalise across all active metrics together ───────────────────────────
-  // Skip metrics that are all-zero (avoids the flat 50% line)
+  // ── Normalise each metric independently ──────────────────────────────────────
+  // Each line uses its own 0–100 scale so relative change within each metric
+  // is clearly visible regardless of absolute magnitude differences between metrics.
+  // Skip metrics that are all-zero (avoids flat lines).
   const activeNonZero=metrics.filter(m=>data.some(w=>(w[m]||0)>0));
+
+  function normIndependent(arr){
+    const nonZero=arr.filter(v=>v>0);
+    if(!nonZero.length)return arr.map(()=>0);
+    const mn=0; // always start from zero so growth from nothing reads correctly
+    const mx=Math.max(...arr);
+    if(mx===0)return arr.map(()=>0);
+    return arr.map(v=>Math.round((v/mx)*96)); // map to 0–96 leaving room at top
+  }
 
   const datasets=activeNonZero.map(m=>({
     label:ML[m],
-    data:norm(data.map(w=>w[m]||0)),
+    data:normIndependent(data.map(w=>w[m]||0)),
     borderColor:MC[m],
     backgroundColor:MC[m]+'14',
-    borderWidth:2,
+    borderWidth:2.5,
     tension:0.3,
     fill:false,
-    pointRadius:3,
-    pointHoverRadius:6,
+    pointRadius:4,
+    pointHoverRadius:7,
     pointBackgroundColor:MC[m],
     pointBorderColor:'#fff',
-    pointBorderWidth:1.5,
+    pointBorderWidth:2,
     pointHoverBorderColor:'#fff',
     pointHoverBorderWidth:2,
     spanGaps:true,
