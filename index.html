@@ -289,7 +289,7 @@ textarea.fi{resize:vertical;min-height:60px}
         <div class="cw cw-sm"><canvas id="chart-reg"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title" style="margin-bottom:2px">Social reach & interactions</div>
+        <div class="card-title" style="margin-bottom:2px">Reach, views & interactions</div>
         <div class="card-sub">Instagram, Facebook & TikTok combined</div>
         <div class="cw cw-sm"><canvas id="chart-social"></canvas></div>
       </div>
@@ -338,18 +338,18 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
         <div class="platform-fields">
           <div class="pf-row">
-            <label class="pf-label">Instagram followers (total now)</label>
-            <span class="pf-hint">Insights → Audience → total IG follower count right now</span>
-            <input type="number" class="pf-input" id="s-ig" placeholder="e.g. 1240" min="0">
+            <label class="pf-label">New Instagram followers this period</label>
+            <span class="pf-hint">Insights → Overview → "Followers" gained (not total) — the number shown for your selected date range</span>
+            <input type="number" class="pf-input" id="s-ig" placeholder="e.g. 24" min="0">
           </div>
           <div class="pf-row">
-            <label class="pf-label">Facebook followers (total now)</label>
-            <span class="pf-hint">Insights → Audience → total FB page followers right now</span>
-            <input type="number" class="pf-input" id="s-fb" placeholder="e.g. 860" min="0">
+            <label class="pf-label">New Facebook followers this period</label>
+            <span class="pf-hint">Insights → Audience → "New followers" gained for your selected date range (not total page likes)</span>
+            <input type="number" class="pf-input" id="s-fb" placeholder="e.g. 11" min="0">
           </div>
           <div class="pf-row">
-            <label class="pf-label">Total reach this period</label>
-            <span class="pf-hint">Insights → Reach → Accounts reached for your selected date range</span>
+            <label class="pf-label">Reach & views this period</label>
+            <span class="pf-hint">Instagram: Insights → Reach → Accounts reached · Facebook: Insights → Views for your date range</span>
             <input type="number" class="pf-input" id="s-reach" placeholder="e.g. 3400" min="0">
           </div>
           <div class="pf-row">
@@ -375,9 +375,9 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
         <div class="platform-fields">
           <div class="pf-row">
-            <label class="pf-label">TikTok followers (total now)</label>
-            <span class="pf-hint">Analytics → Followers tab → total count right now</span>
-            <input type="number" class="pf-input" id="s-tiktok-followers" placeholder="e.g. 420" min="0">
+            <label class="pf-label">New TikTok followers this period</label>
+            <span class="pf-hint">Analytics → Overview → "Followers" gained for your date range (not total count)</span>
+            <input type="number" class="pf-input" id="s-tiktok-followers" placeholder="e.g. 18" min="0">
           </div>
           <div class="pf-row">
             <label class="pf-label">Video views this period</label>
@@ -457,9 +457,9 @@ textarea.fi{resize:vertical;min-height:60px}
             <tr>
               <th>Period</th>
               <th>Reg.</th>
-              <th>IG followers</th>
-              <th>FB followers</th>
-              <th>Reach</th>
+              <th>New IG followers</th>
+              <th>New FB followers</th>
+              <th>Reach & views</th>
               <th>Interactions</th>
               <th>Sessions</th>
               <th>Ad spend</th>
@@ -602,7 +602,7 @@ const MC={
   igFollowers:'#9B00E8',     // violet — distinct from brand blue/purple
   tiktokViews:'#00C2D4',     // cyan — distinct from all others
 };
-const ML={registrations:'Registrations',reach:'Reach',interactions:'Interactions',sessions:'Sessions',igFollowers:'IG followers',tiktokViews:'TikTok views'};
+const ML={registrations:'Registrations',reach:'Reach & views',interactions:'Interactions',sessions:'Sessions',igFollowers:'New IG followers',tiktokViews:'TikTok views'};
 
 let db={campaigns:[],weekly:[],settings:{org:'Rainbow Games Tāmaki Makaurau',currency:'NZD'}};
 
@@ -659,8 +659,8 @@ function renderMetrics(){
   const cols=['#FF0099','#000ED1','#5E00D1','#0099FF','#0B0E5A'];
   document.getElementById('metrics-row').innerHTML=[
     {l:'Registrations (total)',v:totalReg.toLocaleString(),d:''},
-    {l:'Reach (latest period)',v:fmt(last.reach||0),d:delt('reach')},
-    {l:'IG followers',v:(last.igFollowers||0).toLocaleString(),d:delt('igFollowers')},
+    {l:'Reach & views (latest period)',v:fmt(last.reach||0),d:delt('reach')},
+    {l:'New IG followers',v:(last.igFollowers||0).toLocaleString(),d:delt('igFollowers')},
     {l:'Website sessions',v:fmt(last.sessions||0),d:delt('sessions')},
     {l:'Cost per registration',v:cpr?'$'+cpr:'—',d:''},
   ].map((c,i)=>`<div class="mc" style="border-top-color:${cols[i]}"><div class="mc-label">${c.l}</div><div class="mc-val">${c.v}</div>${c.d}</div>`).join('');
@@ -804,7 +804,9 @@ function renderMainChart(){
             let html=`<div class="tt-title">${startLabel}${label}</div>`;
             activeNonZero.forEach(m=>{
               const raw=w[m]||0;
-              html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${ML[m]}</span><span class="tt-v">${raw>=1000?fmt(raw):raw}</span></div>`;
+              // Clarify for followers that this is the gain for the period
+              const label=(m==='igFollowers'||m==='fbFollowers')?ML[m]+' gained':ML[m];
+              html+=`<div class="tt-row"><span class="tt-l" style="color:${MC[m]}">${label}</span><span class="tt-v">${raw>=1000?fmt(raw):raw}</span></div>`;
             });
             // Show any campaigns near this period
             const pe=new Date(w.weekEnding),ps=new Date(w.weekStart||w.weekEnding);
@@ -927,7 +929,7 @@ function openRowEdit(id){
   document.querySelectorAll('.edit-row').forEach(r=>r.remove());
   const sourceRow=document.getElementById('row-'+id);if(!sourceRow)return;
   const vals=[w.registrations,w.igFollowers,w.fbFollowers,w.reach,w.interactions,w.sessions,w.adSpend,w.tiktokViews];
-  const fields=[['Registrations','re-reg'],['IG followers','re-ig'],['FB followers','re-fb'],['Reach','re-reach'],['Interactions','re-inter'],['Sessions','re-sess'],['Ad spend ($)','re-spend'],['TikTok views','re-tiktok']];
+  const fields=[['Registrations','re-reg'],['New IG followers','re-ig'],['New FB followers','re-fb'],['Reach & views','re-reach'],['Interactions','re-inter'],['Sessions','re-sess'],['Ad spend ($)','re-spend'],['TikTok views','re-tiktok']];
   const editRow=document.createElement('tr');
   editRow.className='edit-row';editRow.id='editrow-'+id;
   editRow.innerHTML=`<td colspan="11" style="padding:14px 12px">
@@ -1050,7 +1052,7 @@ function renderImpact(){
         </div>
         <div class="imp-body" id="i${c.id}">
           <div style="font-size:11px;color:var(--text2);margin-bottom:8px">3-week window after vs before this campaign</div>
-          <div class="imp-grid">${impM('Registrations','registrations')}${impM('Reach','reach')}${impM('Interactions','interactions')}${impM('Sessions','sessions')}${impM('IG followers','igFollowers')}${impM('TikTok views','tiktokViews')}</div>
+          <div class="imp-grid">${impM('Registrations','registrations')}${impM('Reach & views','reach')}${impM('Interactions','interactions')}${impM('Sessions','sessions')}${impM('New IG followers','igFollowers')}${impM('TikTok views','tiktokViews')}</div>
           ${c.registrations?`<div style="margin-top:8px;font-size:12px;color:var(--text2)">Directly attributed: <strong>${c.registrations} registrations</strong>${c.budget?' · Budget: <strong>$'+c.budget+'</strong> · CPR: <strong>$'+Math.round(c.budget/c.registrations)+'</strong>':''}</div>`:''}
           ${c.notes?`<div style="margin-top:4px;font-size:12px;color:var(--text2)">${c.notes}</div>`:''}
         </div>
